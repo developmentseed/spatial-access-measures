@@ -41,12 +41,25 @@ const access_categories = createListCollection({
   ],
 })
 
-const access_types =  createListCollection({
+const percentiles = createListCollection({
   items: [
-    {label:"Public Transit", value:'sam_public_transit'},
+    { label: "10%", value: 0.1 },
+    { label: "25%", value: 0.25 },
+    { label: "40%", value: 0.4 },
+    { label: "50% (Median)", value: 0.5 },
+    { label: "70%", value: 0.7 },
+    { label: "90%", value: 0.9 }
   ],
 })
 
+const access_types =  createListCollection({
+  items: [
+    {label:"Public Transit (Peak)", value:'acs_public_transit_peak'},
+    {label:"Public Transit (Off Peak)", value:'acs_public_transit_offpeak'},
+    {label:"Cycling", value:'acs_cycling'},
+    {label:"Walking", value:'acs_walking'},
+  ],
+})
 
 function App() {
 
@@ -54,6 +67,8 @@ function App() {
   const [err, setErr] = useState<string>("");
   const [city, setCity] = useState<string>('Vancouver')
   const [access, setAccess] = useState<string>('acs_idx_emp')
+  const [access_class, setAccessClass] = useState<string>('acs_public_transit_peak')
+  const [percentile, setPercentile] = useState<number>(0.99)
 
   useEffect(() => {
     console.log("setting up db")
@@ -78,9 +93,30 @@ function App() {
           'acs_idx_ef':acs_idx_ef,
           'acs_idx_caf':acs_idx_caf
         }
-      } AS JSON) as geometry_json
-    FROM sam_public_transit.parquet WHERE CSDNAME='${city}') as t;
+      } AS JSON) as geometry_json, 
+    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}')  ;
     `);
+
+    // const { arrow, loading, error } = useDuckDbQuery(`
+    //   SELECT CAST({ 
+    //     type: 'FeatureCollection',
+    //     features: json_group_array(geometry_json) 
+    //   } AS JSON) as feature_collection 
+    //   FROM (SELECT CAST({
+    //       type:'Feature',
+    //       geometry:ST_AsGeoJSON(ST_GeomFromWKB(st_aswkb(geometry))),
+    //       properties: {
+    //         'acs_idx_emp':acs_idx_emp,
+    //         'acs_idx_hf':acs_idx_hf,
+    //         'acs_idx_srf':acs_idx_srf,
+    //         'acs_idx_psef':acs_idx_psef,
+    //         'acs_idx_ef':acs_idx_ef,
+    //         'acs_idx_caf':acs_idx_caf
+    //       }
+    //     } AS JSON) as geometry_json, 
+    //   FROM sam_public_transit.parquet WHERE CSDNAME='${city}') ;
+    //   `);
+  
 
   function handleCity(data: any) {
     setCity(data.value[0]);
@@ -89,6 +125,15 @@ function App() {
   function handleAccess(data: any) {
     setAccess(data.value[0]);
   }
+
+  function handlePercentile(data: any) {
+    setPercentile(data.value[0]);
+  }
+
+  function handleAccessType(data: any) {
+    setAccessClass(data.value[0]);
+  }
+
   return (
     <Provider>
       
@@ -101,10 +146,10 @@ function App() {
         
         <Stack gap="5">
 
-        <SelectRoot key="access_type" size="sm" collection={access_types}>
+        <SelectRoot key="access_type" size="sm" collection={access_types} onValueChange={handleAccessType}>
 
           <SelectTrigger>
-            <SelectValueText placeholder="Public Transit" />
+            <SelectValueText placeholder="Public Transit (Peak)" />
           </SelectTrigger>
           <SelectContent p="2">
             {access_types.items.map((item) => (
@@ -136,6 +181,20 @@ function App() {
           </SelectTrigger>
           <SelectContent p="3">
             {access_categories.items.map((item) => (
+              <SelectItem item={item} key={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </SelectRoot>
+
+        <SelectRoot key="percentile" size="sm" collection={percentiles} onValueChange={handlePercentile}>
+          <SelectLabel>Percentile</SelectLabel>
+          <SelectTrigger>
+            <SelectValueText placeholder="50%" />
+          </SelectTrigger>
+          <SelectContent p="3">
+            {percentiles.items.map((item) => (
               <SelectItem item={item} key={item.value}>
                 {item.label}
               </SelectItem>

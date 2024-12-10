@@ -8,7 +8,7 @@ export async function setupDB() {
         },
       } 
     const db = await initializeDuckDb({ config, debug: true });
-    const file = "sam_public_transit.parquet"
+    const file = "access_measures.parquet"
     const url = "https://gtfs-parquet.s3.us-west-2.amazonaws.com/spatial_access_measures_wkb.parquet"
 
     await db.registerFileURL(

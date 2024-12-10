@@ -49,7 +49,7 @@ export default function Map(props: Props) {
   useEffect(() => {
     if (!map.current.isSourceLoaded('da') || props.data==undefined) return;
 
-    let boundaries = JSON.parse(props.data.toArray().map(Object.fromEntries)[0].feature_collection);
+    let boundaries = JSON.parse(props.data?.toArray().map(Object.fromEntries)[0].feature_collection);
     let box = bbox(boundaries);
 
     map.current.getSource("da").setData(boundaries);
@@ -58,7 +58,7 @@ export default function Map(props: Props) {
       "fill-color",
       {
         property:props.access_measure,
-        stops: getColorMap(JSON.parse(props.data?.toArray().map(Object.fromEntries)[0].feature_collection),props.access_measure),
+        stops: getColorMap(boundaries,props.access_measure),
       })
     map.current.fitBounds(box, { padding: 30 });
 
