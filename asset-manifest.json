@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/spatial-access-measures/static/css/main.15be2b8e.css",
-    "main.js": "/spatial-access-measures/static/js/main.08320ddb.js",
+    "main.js": "/spatial-access-measures/static/js/main.37ede2db.js",
     "static/js/453.8a2d6927.chunk.js": "/spatial-access-measures/static/js/453.8a2d6927.chunk.js",
     "static/media/svg%3E": "/spatial-access-measures/static/media/bcdf1fc76d9b71a97886.bcdf1fc76d9b71a97886.svg",
     "index.html": "/spatial-access-measures/index.html",
     "static/media/javascript,__webpack_public_path__ = __webpack_base_uri__ = htmlWebpackPluginPublicPath;": "/spatial-access-measures/static/media/1feff74faaf0efc6a044.1feff74faaf0efc6a044",
     "main.15be2b8e.css.map": "/spatial-access-measures/static/css/main.15be2b8e.css.map",
-    "main.08320ddb.js.map": "/spatial-access-measures/static/js/main.08320ddb.js.map",
+    "main.37ede2db.js.map": "/spatial-access-measures/static/js/main.37ede2db.js.map",
     "453.8a2d6927.chunk.js.map": "/spatial-access-measures/static/js/453.8a2d6927.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.15be2b8e.css",
-    "static/js/main.08320ddb.js"
+    "static/js/main.37ede2db.js"
   ]
 }
