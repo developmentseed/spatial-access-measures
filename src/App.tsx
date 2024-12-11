@@ -77,6 +77,7 @@ function App() {
       .catch((e) => setErr(e.message));
   },[])
 
+
   const { arrow, loading, error } = useDuckDbQuery(`
     SELECT CAST({ 
       type: 'FeatureCollection',
@@ -97,26 +98,6 @@ function App() {
     FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}')  ;
     `);
 
-    // const { arrow, loading, error } = useDuckDbQuery(`
-    //   SELECT CAST({ 
-    //     type: 'FeatureCollection',
-    //     features: json_group_array(geometry_json) 
-    //   } AS JSON) as feature_collection 
-    //   FROM (SELECT CAST({
-    //       type:'Feature',
-    //       geometry:ST_AsGeoJSON(ST_GeomFromWKB(st_aswkb(geometry))),
-    //       properties: {
-    //         'acs_idx_emp':acs_idx_emp,
-    //         'acs_idx_hf':acs_idx_hf,
-    //         'acs_idx_srf':acs_idx_srf,
-    //         'acs_idx_psef':acs_idx_psef,
-    //         'acs_idx_ef':acs_idx_ef,
-    //         'acs_idx_caf':acs_idx_caf
-    //       }
-    //     } AS JSON) as geometry_json, 
-    //   FROM sam_public_transit.parquet WHERE CSDNAME='${city}') ;
-    //   `);
-  
 
   function handleCity(data: any) {
     setCity(data.value[0]);
@@ -188,7 +169,7 @@ function App() {
           </SelectContent>
         </SelectRoot>
 
-        <SelectRoot key="percentile" size="sm" collection={percentiles} onValueChange={handlePercentile}>
+        <SelectRoot disabled key="percentile" size="sm" collection={percentiles} onValueChange={handlePercentile}>
           <SelectLabel>Percentile</SelectLabel>
           <SelectTrigger>
             <SelectValueText placeholder="50%" />

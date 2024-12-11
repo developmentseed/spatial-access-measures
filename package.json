@@ -2,6 +2,7 @@
   "name": "spatial-access-measures",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://smohiudd.github.io/spatial-access-measures",
   "dependencies": {
     "@chakra-ui/react": "^3.2.1",
     "@duckdb/duckdb-wasm": "^1.29.0",
