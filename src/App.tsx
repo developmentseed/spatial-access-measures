@@ -1,10 +1,12 @@
 // import React from 'react';
 import {useEffect, useState } from "react";
-import Map from "./components/map";
+import MapLayer from "./components/map";
 
 import {setupDB} from "./components/db"
 import { useDuckDbQuery} from "duckdb-wasm-kit";
 import { Provider } from "./components/ui/provider"
+
+
 import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react"
 import {
   SelectContent,
@@ -79,25 +81,10 @@ function App() {
 
 
   const { arrow, loading, error } = useDuckDbQuery(`
-    SELECT CAST({ 
-      type: 'FeatureCollection',
-      features: json_group_array(geometry_json) 
-    } AS JSON) as feature_collection 
-    FROM (SELECT CAST({
-        type:'Feature',
-        geometry:ST_AsGeoJSON(ST_GeomFromWKB(st_aswkb(geometry))),
-        properties: {
-          'acs_idx_emp':acs_idx_emp,
-          'acs_idx_hf':acs_idx_hf,
-          'acs_idx_srf':acs_idx_srf,
-          'acs_idx_psef':acs_idx_psef,
-          'acs_idx_ef':acs_idx_ef,
-          'acs_idx_caf':acs_idx_caf
-        }
-      } AS JSON) as geometry_json, 
-    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}')  ;
+    SELECT st_aswkb(geometry) as geometry, acs_idx_emp
+    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}'  ;
     `);
-
+  
 
   function handleCity(data: any) {
     setCity(data.value[0]);
@@ -119,7 +106,8 @@ function App() {
     <Provider>
       
 
-      {ready && <Map data={arrow} access_measure={access} />}
+      {ready && arrow && <MapLayer data={arrow} access_measure={access} />}
+
       <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" shadow="3px 3px 4px 6px rgba(0, 0, 0, .05)">
         <Text textStyle="4xl">Spatial Access Measures </Text>
 
@@ -191,7 +179,7 @@ function App() {
           <Box>
             Loading Data...
           </Box>
-        </AbsoluteCenter>}
+        </AbsoluteCenter>} 
     </Provider>
       
   );
