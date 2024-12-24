@@ -11,7 +11,7 @@
     "@duckdb/duckdb-wasm": "^1.29.0",
     "@emotion/react": "^11.13.5",
     "@geoarrow/deck.gl-layers": "^0.3.0-beta.17",
-    "@geoarrow/geoarrow-js": "github:smohiudd/geoarrow-js#879ee5d5d08929c6a08e0a6cea0599c8196ed1a2",
+    "@geoarrow/geoarrow-js": "github:hanbyul-here/geoarrow-js#ccc34f0a93144423c6e97f0ba15174bca67a38c7",
     "@loaders.gl/core": "^4.3.3",
     "@loaders.gl/wkt": "^4.3.3",
     "@testing-library/jest-dom": "^5.17.0",
@@ -24,6 +24,7 @@
     "@types/node": "^16.18.119",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "apache-arrow": "^15",
     "d3": "^7.9.0",
     "deck.gl": "^9.0.36",
     "duckdb-wasm-kit": "^0.1.38",
@@ -69,7 +70,7 @@
     "@types/d3": "^7.4.3",
     "gh-pages": "^6.2.0"
   },
-  "peerDependencies": {
-    "apache-arrow": ">=15"
+  "resolutions": {
+    "apache-arrow": "^15"
   }
 }

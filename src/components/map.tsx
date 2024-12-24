@@ -5,36 +5,41 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "../styles/map.css";
 import { bbox } from "@turf/bbox";
 import { getColorMap } from "../color_map";
-import { WKBLoader } from '@loaders.gl/wkt';
-import { parseSync } from '@loaders.gl/core';
-import {io, vector, data} from "@geoarrow/geoarrow-js";
-import { makeVector, Vector } from 'apache-arrow';
-import { makeData, Data } from 'apache-arrow/data';
-import { Table, makeTable } from 'apache-arrow';
-import { Binary } from "apache-arrow";
+import { WKBLoader } from "@loaders.gl/wkt";
+import { parseSync } from "@loaders.gl/core";
+import * as GeoArrow from "@geoarrow/geoarrow-js";
 
-import {Map, useControl} from 'react-map-gl/maplibre';
-import {MapboxOverlay} from '@deck.gl/mapbox';
-import {DeckProps} from '@deck.gl/core';
+// import * as ApacheArrow from "apache-arrow";
+import * as arrow from "apache-arrow";
+
+// import { makeVector, Vector } from "apache-arrow";
+// import { makeData, Data } from "apache-arrow/data";
+// import { Table, makeTable } from "apache-arrow";
+// import { Binary } from "apache-arrow";
+
+import { Map, useControl } from "react-map-gl/maplibre";
+import { MapboxOverlay } from "@deck.gl/mapbox";
+import { DeckProps } from "@deck.gl/core";
 import { GeoArrowPolygonLayer } from "@geoarrow/deck.gl-layers";
+const { io, vector, data } = GeoArrow;
 
+const { makeVector, Vector, makeData, Data, Table, makeTable, Binary } = arrow;
 function DeckGLOverlay(props: DeckProps) {
   const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
   overlay.setProps(props);
   return null;
 }
 
-export default function MapLayer(props:Props){
-  const [lng] = useState(-123.1120);
+export default function MapLayer(props: Props) {
+  const [lng] = useState(-123.112);
   const [lat] = useState(49.2488);
   const [zoom] = useState(11.5);
   const [table, setTable] = useState<Table | null>(null);
 
   useEffect(() => {
-
     let geometry_wkb = props.data.getChildAt(0)?.toArray();
 
-    let flattenedWBK = new Uint8Array(geometry_wkb.flatMap(arr => [...arr]));
+    let flattenedWBK = new Uint8Array(geometry_wkb.flatMap((arr) => [...arr]));
 
     const valueOffsets = [0];
     for (let i = 0; i < geometry_wkb.length; i += 1) {
@@ -45,50 +50,55 @@ export default function MapLayer(props:Props){
     const coordData = makeData({
       type: new Binary(),
       data: flattenedWBK,
-      valueOffsets: valueOffsets
+      valueOffsets: valueOffsets,
     });
 
-    let polygonData = io.parseWkb(coordData, io.WKBType.Polygon, 2)
-    let vector = makeVector(polygonData)
+    let polygonData = io.parseWkb(coordData, io.WKBType.Polygon, 2);
+
+    console.log(polygonData);
+    console.log(polygonData instanceof Data);
+    let vector = makeVector(polygonData);
+
     let table = new Table({
-      geometry:vector
-    })
-    table.schema.fields[0].metadata.set("ARROW:extension:name", "geoarrow.polygon");
-  
-    setTable(table)
+      geometry: vector,
+    });
+    table.schema.fields[0].metadata.set(
+      "ARROW:extension:name",
+      "geoarrow.polygon"
+    );
 
-  },[])
-
+    setTable(table);
+  }, []);
 
   const layers = [
-     table && new GeoArrowPolygonLayer({
-      id: "geoarrow-polygons",
-      stroked: true,
-      filled: true,
-      data: table,
-      getFillColor: [0, 100, 60, 160],
-      getLineColor: [255, 0, 0],
-      lineWidthMinPixels: 1,
-    })
-  ]
+    table &&
+      new GeoArrowPolygonLayer({
+        id: "geoarrow-polygons",
+        stroked: true,
+        filled: true,
+        data: table,
+        getFillColor: [0, 100, 60, 160],
+        getLineColor: [255, 0, 0],
+        lineWidthMinPixels: 1,
+      }),
+  ];
 
-  return(
-    table && <Map
-      initialViewState={{
-        longitude: lng,
-        latitude: lat,
-        zoom: zoom
-      }}
-      style={{width: '100vw', height: '100vw', position:"absolute"}}
-      mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-    >
-      <DeckGLOverlay layers={layers} interleaved />
-    </Map>
+  return (
+    table && (
+      <Map
+        initialViewState={{
+          longitude: lng,
+          latitude: lat,
+          zoom: zoom,
+        }}
+        style={{ width: "100vw", height: "100vw", position: "absolute" }}
+        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+      >
+        <DeckGLOverlay layers={layers} interleaved />
+      </Map>
     )
-
+  );
 }
-
-
 
 // export default function Map(props: Props) {
 //   const mapContainer = useRef<any>(null);
@@ -161,7 +171,6 @@ export default function MapLayer(props:Props){
 
 //   }, [props.data]);
 
-
 //   useEffect(() => {
 //     if (!map.current.isSourceLoaded('da') || props.data==undefined) return;
 
@@ -173,9 +182,7 @@ export default function MapLayer(props:Props){
 //         stops: getColorMap(JSON.parse(props.data?.toArray().map(Object.fromEntries)[0].feature_collection),props.access_measure),
 //       })
 
-
 //   }, [props.access_measure]);
-
 
 //   return (
 //     <div>
@@ -186,5 +193,5 @@ export default function MapLayer(props:Props){
 
 interface Props {
   data: Table;
-  access_measure: string
+  access_measure: string;
 }
