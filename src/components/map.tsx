@@ -38,53 +38,54 @@ export default function MapLayer(props: Props) {
 
   useEffect(() => {
     let geometry_wkb = props.data.getChildAt(0)?.toArray();
+    let ids = props.data.getChildAt(1)?.toArray();
+
+    console.log(ids)
 
     let flattenedWBK = new Uint8Array(geometry_wkb.flatMap((arr) => [...arr]));
 
-    const valueOffsets = [0];
-    for (let i = 0; i < geometry_wkb.length; i += 1) {
-      let current = valueOffsets[valueOffsets.length - 1];
-      valueOffsets.push(current + geometry_wkb[i].length);
+    const valueOffsets_ = new Int32Array(geometry_wkb.length+1);
+
+    for (let i = 1; i < geometry_wkb.length+1; i += 1) {
+      let current = valueOffsets_[i - 1];
+      valueOffsets_[i]=current+geometry_wkb[i-1].length;
     }
 
     const coordData = makeData({
       type: new Binary(),
       data: flattenedWBK,
-      valueOffsets: valueOffsets,
+      valueOffsets: valueOffsets_,
     });
 
     let polygonData = io.parseWkb(coordData, io.WKBType.Polygon, 2);
 
-    console.log(polygonData);
-    console.log(polygonData instanceof Data);
-    let vector = makeVector(polygonData);
-
     let table = new Table({
-      geometry: vector,
+      geometry:  makeVector(polygonData),
+      sam: makeVector(ids)
     });
+
     table.schema.fields[0].metadata.set(
       "ARROW:extension:name",
       "geoarrow.polygon"
     );
 
     setTable(table);
-  }, []);
+  }, [props.data]);
 
   const layers = [
-    table &&
-      new GeoArrowPolygonLayer({
+      table && new GeoArrowPolygonLayer({
         id: "geoarrow-polygons",
         stroked: true,
         filled: true,
         data: table,
         getFillColor: [0, 100, 60, 160],
-        getLineColor: [255, 0, 0],
+        getLineColor: [0, 255, 0],
         lineWidthMinPixels: 1,
       }),
   ];
 
   return (
-    table && (
+    (
       <Map
         initialViewState={{
           longitude: lng,

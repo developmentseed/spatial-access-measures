@@ -11,7 +11,6 @@
     "@duckdb/duckdb-wasm": "^1.29.0",
     "@emotion/react": "^11.13.5",
     "@geoarrow/deck.gl-layers": "^0.3.0-beta.17",
-    "@geoarrow/geoarrow-js": "github:hanbyul-here/geoarrow-js#ccc34f0a93144423c6e97f0ba15174bca67a38c7",
     "@loaders.gl/core": "^4.3.3",
     "@loaders.gl/wkt": "^4.3.3",
     "@testing-library/jest-dom": "^5.17.0",
