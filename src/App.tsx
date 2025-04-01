@@ -79,10 +79,10 @@ function App() {
 
 
   const { arrow, loading, error } = useDuckDbQuery(`
-    SELECT CAST({ 
+    SELECT CAST({
       type: 'FeatureCollection',
-      features: json_group_array(geometry_json) 
-    } AS JSON) as feature_collection 
+      features: json_group_array(geometry_json)
+    } AS JSON) as feature_collection
     FROM (SELECT CAST({
         type:'Feature',
         geometry:ST_AsGeoJSON(ST_GeomFromWKB(st_aswkb(geometry))),
@@ -94,7 +94,7 @@ function App() {
           'acs_idx_ef':acs_idx_ef,
           'acs_idx_caf':acs_idx_caf
         }
-      } AS JSON) as geometry_json, 
+      } AS JSON) as geometry_json,
     FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}')  ;
     `);
 
@@ -117,14 +117,12 @@ function App() {
 
   return (
     <Provider>
-      
-
       {ready && <Map data={arrow} access_measure={access} />}
       <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" shadow="3px 3px 4px 6px rgba(0, 0, 0, .05)">
         <Text textStyle="4xl">Spatial Access Measures </Text>
 
         <Text py="4">Statistics Canada data that quantifies the ease of reaching destinations from an origin dissemination block (DB).</Text>
-        
+
         <Stack gap="5">
 
         <SelectRoot key="access_type" size="sm" collection={access_types} onValueChange={handleAccessType}>
@@ -140,7 +138,7 @@ function App() {
             ))}
           </SelectContent>
         </SelectRoot>
-        
+
         <SelectRoot key="cities" size="sm" collection={cities} onValueChange={handleCity}>
           <SelectLabel>City</SelectLabel>
           <SelectTrigger>
@@ -186,14 +184,14 @@ function App() {
 
       </Box>
 
-      {loading && 
+      {loading &&
         <AbsoluteCenter bg="grey" p="2" color="white" axis="both">
           <Box>
             Loading Data...
           </Box>
         </AbsoluteCenter>}
     </Provider>
-      
+
   );
 }
 
