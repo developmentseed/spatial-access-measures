@@ -1,11 +1,10 @@
-// import React from 'react';
-import {useEffect, useState } from "react";
+import {FormEvent, useEffect, useState } from "react";
 import Map from "./components/map";
 
-import {setupDB} from "./components/db"
+import {setupDB} from "./components/db";
 import { useDuckDbQuery} from "duckdb-wasm-kit";
-import { Provider } from "./components/ui/provider"
-import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react"
+import { Provider } from "./components/ui/provider";
+import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react";
 import {
   SelectContent,
   SelectItem,
@@ -13,7 +12,7 @@ import {
   SelectRoot,
   SelectTrigger,
   SelectValueText,
-} from "./components/ui/select"
+} from "./components/ui/select";
 
 
 const cities = createListCollection({
@@ -28,18 +27,18 @@ const cities = createListCollection({
     { label: "Regina", value: "Regina" },
     { label: "Winnipeg", value: "Winnipeg" },
   ],
-})
+});
 
 const access_categories = createListCollection({
   items: [
-    {label:"Employment", value:'acs_idx_emp'},
-    {label:"Healthcare Facilities", value:'acs_idx_hf'},
-    {label:"Primary and Secondary Education", value:'acs_idx_ef'},
-    {label:"Post-secondary Education", value:'acs_idx_psef'},
-    {label:"Sport and Recreation Facilities", value:'acs_idx_srf'},
-    {label:"Cultural and Arts Facilities", value:'acs_idx_caf'}
+    {label:"Employment", value:"acs_idx_emp"},
+    {label:"Healthcare Facilities", value:"acs_idx_hf"},
+    {label:"Primary and Secondary Education", value:"acs_idx_ef"},
+    {label:"Post-secondary Education", value:"acs_idx_psef"},
+    {label:"Sport and Recreation Facilities", value:"acs_idx_srf"},
+    {label:"Cultural and Arts Facilities", value:"acs_idx_caf"}
   ],
-})
+});
 
 const percentiles = createListCollection({
   items: [
@@ -50,35 +49,34 @@ const percentiles = createListCollection({
     { label: "70%", value: 0.7 },
     { label: "90%", value: 0.9 }
   ],
-})
+});
 
 const access_types =  createListCollection({
   items: [
-    {label:"Public Transit (Peak)", value:'acs_public_transit_peak'},
-    {label:"Public Transit (Off Peak)", value:'acs_public_transit_offpeak'},
-    {label:"Cycling", value:'acs_cycling'},
-    {label:"Walking", value:'acs_walking'},
+    {label:"Public Transit (Peak)", value:"acs_public_transit_peak"},
+    {label:"Public Transit (Off Peak)", value:"acs_public_transit_offpeak"},
+    {label:"Cycling", value:"acs_cycling"},
+    {label:"Walking", value:"acs_walking"},
   ],
-})
+});
 
 function App() {
 
   const [ready, setReady] = useState(false);
-  const [err, setErr] = useState<string>("");
-  const [city, setCity] = useState<string>('Vancouver')
-  const [access, setAccess] = useState<string>('acs_idx_emp')
-  const [access_class, setAccessClass] = useState<string>('acs_public_transit_peak')
-  const [percentile, setPercentile] = useState<number>(0.99)
+  const [city, setCity] = useState<string>("Vancouver");
+  const [access, setAccess] = useState<string>("acs_idx_emp");
+  const [access_class, setAccessClass] = useState<string>("acs_public_transit_peak");
+  const [percentile, setPercentile] = useState<number>(0.99); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   useEffect(() => {
-    console.log("setting up db")
+    console.log("setting up db");
     setupDB()
       .then(() => setReady(true))
-      .catch((e) => setErr(e.message));
-  },[])
+      .catch((e) => console.error(e.message));
+  },[]);
 
 
-  const { arrow, loading, error } = useDuckDbQuery(`
+  const { arrow, loading } = useDuckDbQuery(`
     SELECT CAST({
       type: 'FeatureCollection',
       features: json_group_array(geometry_json)
@@ -99,20 +97,20 @@ function App() {
     `);
 
 
-  function handleCity(data: any) {
-    setCity(data.value[0]);
+  function handleCity(e: FormEvent<HTMLDivElement>) {
+    setCity((e.target as HTMLSelectElement).value);
   }
 
-  function handleAccess(data: any) {
-    setAccess(data.value[0]);
+  function handleAccess(e: FormEvent<HTMLDivElement>) {
+    setAccess((e.target as HTMLSelectElement).value);
   }
 
-  function handlePercentile(data: any) {
-    setPercentile(data.value[0]);
+  function handlePercentile(e: FormEvent<HTMLDivElement>) {
+    setPercentile(parseFloat((e.target as HTMLSelectElement).value));
   }
 
-  function handleAccessType(data: any) {
-    setAccessClass(data.value[0]);
+  function handleAccessType(e: FormEvent<HTMLDivElement>) {
+    setAccessClass((e.target as HTMLSelectElement).value);
   }
 
   return (
@@ -125,62 +123,61 @@ function App() {
 
         <Stack gap="5">
 
-        <SelectRoot key="access_type" size="sm" collection={access_types} onValueChange={handleAccessType}>
+          <SelectRoot key="access_type" size="sm" collection={access_types} onChange={handleAccessType}>
+            <SelectTrigger>
+              <SelectValueText placeholder="Public Transit (Peak)" />
+            </SelectTrigger>
+            <SelectContent p="2">
+              {access_types.items.map((item) => (
+                <SelectItem item={item} key={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectRoot>
 
-          <SelectTrigger>
-            <SelectValueText placeholder="Public Transit (Peak)" />
-          </SelectTrigger>
-          <SelectContent p="2">
-            {access_types.items.map((item) => (
-              <SelectItem item={item} key={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </SelectRoot>
+          <SelectRoot key="cities" size="sm" collection={cities} onChange={handleCity}>
+            <SelectLabel>City</SelectLabel>
+            <SelectTrigger>
+              <SelectValueText placeholder={city} />
+            </SelectTrigger>
+            <SelectContent p="2">
+              {cities.items.map((item) => (
+                <SelectItem item={item} key={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectRoot>
 
-        <SelectRoot key="cities" size="sm" collection={cities} onValueChange={handleCity}>
-          <SelectLabel>City</SelectLabel>
-          <SelectTrigger>
-            <SelectValueText placeholder={city} />
-          </SelectTrigger>
-          <SelectContent p="2">
-            {cities.items.map((item) => (
-              <SelectItem item={item} key={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </SelectRoot>
+          <SelectRoot key="access" size="sm" collection={access_categories} onChange={handleAccess}>
+            <SelectLabel>Access Measure</SelectLabel>
+            <SelectTrigger>
+              <SelectValueText placeholder="Employment" />
+            </SelectTrigger>
+            <SelectContent p="3">
+              {access_categories.items.map((item) => (
+                <SelectItem item={item} key={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectRoot>
 
-        <SelectRoot key="access" size="sm" collection={access_categories} onValueChange={handleAccess}>
-          <SelectLabel>Access Measure</SelectLabel>
-          <SelectTrigger>
-            <SelectValueText placeholder="Employment" />
-          </SelectTrigger>
-          <SelectContent p="3">
-            {access_categories.items.map((item) => (
-              <SelectItem item={item} key={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </SelectRoot>
-
-        <SelectRoot disabled key="percentile" size="sm" collection={percentiles} onValueChange={handlePercentile}>
-          <SelectLabel>Percentile</SelectLabel>
-          <SelectTrigger>
-            <SelectValueText placeholder="50%" />
-          </SelectTrigger>
-          <SelectContent p="3">
-            {percentiles.items.map((item) => (
-              <SelectItem item={item} key={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </SelectRoot>
-      </Stack>
+          <SelectRoot disabled key="percentile" size="sm" collection={percentiles} onChange={handlePercentile}>
+            <SelectLabel>Percentile</SelectLabel>
+            <SelectTrigger>
+              <SelectValueText placeholder="50%" />
+            </SelectTrigger>
+            <SelectContent p="3">
+              {percentiles.items.map((item) => (
+                <SelectItem item={item} key={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectRoot>
+        </Stack>
 
       </Box>
 

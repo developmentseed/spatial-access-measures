@@ -1,4 +1,4 @@
-import { createSystem, defineConfig, defaultConfig } from "@chakra-ui/react"
+import { createSystem, defineConfig, defaultConfig } from "@chakra-ui/react";
 
 const customConfig = defineConfig({
   theme: {
@@ -15,6 +15,6 @@ const customConfig = defineConfig({
       }
     }
   },
-})
+});
 
-export const system = createSystem(defaultConfig, customConfig)
+export const system = createSystem(defaultConfig, customConfig);
