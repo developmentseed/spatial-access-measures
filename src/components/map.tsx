@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState } from "react";
-import { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
+import { useEffect, useMemo, useRef } from "react";
+import { Layer, Map as MaplibreMap, MapRef, Source } from 'react-map-gl/maplibre';
 import "maplibre-gl/dist/maplibre-gl.css";
 import "../styles/map.css";
 import { Table } from "apache-arrow";
@@ -11,88 +11,70 @@ interface Props {
   access_measure: string
 }
 
-export default function Map(props: Props) {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<MapLibreMap>();
-  const [lng] = useState(-123.1120);
-  const [lat] = useState(49.2488);
-  const [zoom] = useState(11.5);
+export default function Map({ data, access_measure }: Props) {
+  const mapRef = useRef<MapRef>(null);
 
+  const dataGeojson = useMemo(() => {
+    if (!data) {
+      return {
+        type: "FeatureCollection",
+        features: []
+      }
+    }
+    return JSON.parse(data.toArray().map(Object.fromEntries)[0].feature_collection);
+  }, [data]);
 
-  useEffect(() => {
-    if (!mapContainer.current || map.current) return; // stops map from intializing more than once
-    const colorMap = getColorMap(JSON.parse(props.data?.toArray().map(Object.fromEntries)[0].feature_collection), props.access_measure);
-
-    map.current = new MapLibreMap({
-      container: mapContainer.current,
-      style: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
-      center: [lng, lat],
-      zoom: zoom,
-      maxZoom: 14
-    });
-    map.current.on("load", function () {
-      map.current!.addSource("da", {
-        type: "geojson",
-        data: JSON.parse(props.data?.toArray().map(Object.fromEntries)[0].feature_collection),
-      });
-      map.current!.addLayer({
-        "id": "da",
-        "minzoom": 9.5,
-        "type": "fill",
-        "source": "da",
-        "layout": {},
-        "paint": {
-          "fill-color": [
-            "step",
-            ["get", props.access_measure],
-            ...colorMap,
-            colorMap[colorMap.length - 2]
-          ],
-          "fill-opacity": 0.8
-        }
-      });
-    });
-  }, [lng, lat, zoom]);
+  const colorMap = useMemo(() => {
+    if (!data) return;
+    return getColorMap(JSON.parse(data.toArray().map(Object.fromEntries)[0].feature_collection), access_measure);
+  }, [data, access_measure]);
 
   useEffect(() => {
-    if (!map.current || !map.current.isSourceLoaded("da") || props.data==undefined) return;
+    if (!mapRef.current || !data) return;
 
-    const boundaries = JSON.parse(props.data?.toArray().map(Object.fromEntries)[0].feature_collection);
-
-    (map.current.getSource("da") as GeoJSONSource).setData(boundaries);
-    map.current.setPaintProperty(
-      "da",
-      "fill-color",
-      {
-        property:props.access_measure,
-        stops: getColorMap(boundaries,props.access_measure),
-      });
-
+    const boundaries = JSON.parse(data.toArray().map(Object.fromEntries)[0].feature_collection);
     const box = bbox(boundaries);
     const [minX, minY, maxX, maxY] = box;
-    map.current.fitBounds([minX, minY, maxX, maxY], { padding: 30 });
-
-  }, [props.data]);
-
-
-  useEffect(() => {
-    if (!map.current || !map.current.isSourceLoaded("da") || props.data==undefined) return;
-
-    map.current.setPaintProperty(
-      "da",
-      "fill-color",
-      {
-        property:props.access_measure,
-        stops: getColorMap(JSON.parse(props.data?.toArray().map(Object.fromEntries)[0].feature_collection),props.access_measure),
-      });
-
-
-  }, [props.access_measure]);
-
+    mapRef.current.fitBounds([minX, minY, maxX, maxY], { padding: 30 });
+  }, [data])
 
   return (
     <div>
-      <div ref={mapContainer} className="map" />
+      <MaplibreMap
+        ref={mapRef}
+        initialViewState={{
+          longitude: -123.1120,
+          latitude: 49.2488,
+          zoom: 11.5
+        }}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+        }}
+        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+      >
+        {data && colorMap && (
+          <Source id="data-source" type="geojson" data={dataGeojson} promoteId="id">
+            <Layer
+              id="data-layer"
+              type="fill"
+              paint={{
+                "fill-opacity": 0.8,
+                "fill-color": [
+                  "step",
+                  ["get", access_measure],
+                  ...colorMap,
+                  colorMap[colorMap.length - 2]
+                ]
+              }}
+              minzoom={9.5}
+            />
+          </Source>
+        )}
+      </MaplibreMap>
     </div>
   );
 }
