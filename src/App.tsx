@@ -1,8 +1,9 @@
 import {FormEvent, useEffect, useMemo, useState } from "react";
-import { Binary, makeData, makeVector, Table } from "apache-arrow";
-import { io } from "@geoarrow/geoarrow-js";
+import { Binary, makeData, makeVector, Table, Float64 } from "apache-arrow";
+import { io, algorithm } from "@geoarrow/geoarrow-js";
 import { useDuckDbQuery} from "duckdb-wasm-kit";
 import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react";
+import * as d3 from "d3";
 
 import Map from "./components/map";
 
@@ -84,21 +85,12 @@ function App() {
     FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}';
   `);
 
-  const { arrow: extent } = useDuckDbQuery(`
-    SELECT st_extent(ST_Extent_Agg(COLUMNS(geometry)))::BOX_2D as bbox
-    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}';
-  `);
-
-  const { arrow: minmax } = useDuckDbQuery(`
-    SELECT min(${access}) as min, max(${access}) as max
-    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}';
-  `);
-
   const table = useMemo(() => {
     if (!data) return;
 
     const geometry_wkb: Uint8Array[] = data.getChildAt(0)?.toArray();
-    const ids = data.getChildAt(1)?.toArray();
+    const rawValues = data.getChildAt(1)?.toArray();
+    const values: number[] = rawValues ? rawValues.map((v: unknown) => Number(v)) : [];
     const flattenedWKB = new Uint8Array(geometry_wkb.flatMap((arr) => [...arr]));
     const valueOffsets = new Int32Array(geometry_wkb.length + 1);
 
@@ -116,35 +108,32 @@ function App() {
 
     const dataTable = new Table({
       geometry: makeVector(polygonData),
-      sam: makeVector(ids)
+      sam: makeVector(makeData({ type: new Float64(), data: values }))
     });
 
     dataTable.schema.fields[0].metadata.set(
       "ARROW:extension:name",
       "geoarrow.polygon"
     );
-    return dataTable;
+
+    const bbox = algorithm.totalBounds(dataTable.getChildAt(0)!,dataTable.schema.fields[0]);
+    
+    // Convert bbox to [minX, minY, maxX, maxY] format
+    const formattedBbox: [number, number, number, number] = [
+      bbox.minX,
+      bbox.minY,
+      bbox.maxX,
+      bbox.maxY
+    ];
+
+    // Calculate min/max using d3.extent
+    const extent = d3.extent(values);
+    const [min, max] = extent[0] !== undefined && extent[1] !== undefined 
+      ? [extent[0], extent[1]]
+      : [0, 1];
+
+    return { table: dataTable, bbox: formattedBbox, min, max };
   }, [data])
-
-  const [min, max] = useMemo(() => {
-    if (minmax) {
-      const recordBatch = minmax.batches[0];
-      const row = recordBatch.get(0);
-      return [
-        row ? row["min"] : 0,
-        row ? row["max"] : 1
-      ];
-    }
-
-    return [0, 1];
-  }, [minmax]);
-
-  const bbox: [number, number, number, number] | undefined = useMemo(() => {
-    if (!extent) return;
-    const recordBatch = extent.data;
-    const [minX, minY, maxX, maxY] = recordBatch[0].children[0].children.map(({ values }) => values[0]);
-    return [minX, minY, maxX, maxY];
-  }, [extent]);
 
   function handleCity(e: FormEvent<HTMLDivElement>) {
     setCity((e.target as HTMLSelectElement).value);
@@ -166,10 +155,10 @@ function App() {
     <Provider>
       {ready && (
         <Map
-          data={table}
-          bbox={bbox}
-          min={min}
-          max={max}
+          data={table?.table}
+          bbox={table?.bbox}
+          min={table?.min ?? 0}
+          max={table?.max ?? 1}
         />
       )}
       <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" boxShadow="md" zIndex={1000}>
