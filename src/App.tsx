@@ -3,7 +3,6 @@ import { Binary, makeData, makeVector, Table } from "apache-arrow";
 import { io, algorithm } from "@geoarrow/geoarrow-js";
 import { useDuckDbQuery} from "duckdb-wasm-kit";
 import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react";
-import * as d3 from "d3";
 
 import Map from "./components/map";
 
@@ -81,7 +80,7 @@ function App() {
 
 
   const { arrow: data, loading } = useDuckDbQuery(`
-    SELECT st_aswkb(geometry) as geometry, ${access}
+    SELECT st_aswkb(geometry) as geometry, acs_idx_emp, acs_idx_hf, acs_idx_ef, acs_idx_psef, acs_idx_srf, acs_idx_caf
     FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}';
   `);
 
@@ -89,7 +88,6 @@ function App() {
     if (!data) return;
 
     const geometry_wkb: Uint8Array[] = data.getChildAt(0)?.toArray();
-    const values = data.getChildAt(1)?.toArray();
     const flattenedWKB = new Uint8Array(geometry_wkb.flatMap((arr) => [...arr]));
     const valueOffsets = new Int32Array(geometry_wkb.length + 1);
 
@@ -107,7 +105,12 @@ function App() {
 
     const dataTable = new Table({
       geometry: makeVector(polygonData),
-      sam: makeVector(values)
+      acs_idx_emp: makeVector(data.getChild("acs_idx_emp")?.toArray()),
+      acs_idx_hf: makeVector(data.getChild("acs_idx_hf")?.toArray()),
+      acs_idx_ef: makeVector(data.getChild("acs_idx_ef")?.toArray()),
+      acs_idx_psef: makeVector(data.getChild("acs_idx_psef")?.toArray()),
+      acs_idx_srf: makeVector(data.getChild("acs_idx_srf")?.toArray()),
+      acs_idx_caf: makeVector(data.getChild("acs_idx_caf")?.toArray())
     });
 
     dataTable.schema.fields[0].metadata.set(
@@ -150,6 +153,7 @@ function App() {
         <Map
           data={table?.table}
           bbox={table?.bbox}
+          access={access}
         />
       )}
       <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" boxShadow="md" zIndex={1000}>
