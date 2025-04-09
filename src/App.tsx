@@ -172,7 +172,7 @@ function App() {
           max={max}
         />
       )}
-      <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" shadow="3px 3px 4px 6px rgba(0, 0, 0, .05)" zIndex={1000}>
+      <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" boxShadow="md" zIndex={1000}>
         <Text textStyle="4xl">Spatial Access Measures </Text>
 
         <Text py="4">Statistics Canada data that quantifies the ease of reaching destinations from an origin dissemination block (DB).</Text>
