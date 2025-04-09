@@ -89,8 +89,7 @@ function App() {
     if (!data) return;
 
     const geometry_wkb: Uint8Array[] = data.getChildAt(0)?.toArray();
-    const rawValues = data.getChildAt(1)?.toArray();
-    const values: number[] = rawValues ? rawValues.map((v: unknown) => Number(v)) : [];
+    const values = data.getChildAt(1)?.toArray();
     const flattenedWKB = new Uint8Array(geometry_wkb.flatMap((arr) => [...arr]));
     const valueOffsets = new Int32Array(geometry_wkb.length + 1);
 
@@ -108,7 +107,7 @@ function App() {
 
     const dataTable = new Table({
       geometry: makeVector(polygonData),
-      sam: makeVector(makeData({ type: new Float64(), data: values }))
+      sam: makeVector(values)
     });
 
     dataTable.schema.fields[0].metadata.set(
