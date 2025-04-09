@@ -12,8 +12,6 @@ import "../styles/map.css";
 interface Props {
   data?: Table;
   bbox?: [number, number, number, number];
-  min: number;
-  max: number;
 }
 
 function DeckGLOverlay(props: DeckProps) {
@@ -22,10 +20,10 @@ function DeckGLOverlay(props: DeckProps) {
   return null;
 }
 
-export default function Map({ data, bbox, min, max }: Props) {
+export default function Map({ data, bbox }: Props) {
   const mapRef = useRef<MapRef>(null);
 
-  const { getColor } = useColorScale(min, max);
+  const { getColor} = useColorScale(data);
 
   const layers = useMemo(() => {
     return [

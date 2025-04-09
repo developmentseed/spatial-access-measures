@@ -1,7 +1,19 @@
 import * as d3 from "d3";
 import { useCallback, useMemo } from "react";
+import { Table } from "apache-arrow";
 
-function useColorScale(min: number, max: number) {
+function useColorScale(data: Table | undefined) {
+  const { min, max } = useMemo(() => {
+    if (!data) return { min: 0, max: 1 };
+    
+    const values = data.getChild("sam")?.toArray();
+    const extent = d3.extent(values as number[]);
+    return {
+      min: extent[0] ?? 0,
+      max: extent[1] ?? 1
+    };
+  }, [data]);
+
   const scale = useMemo(() => {
     return d3.scaleQuantize([min, max], d3.schemeBuPu[9]);
   }, [min, max]);
@@ -17,9 +29,7 @@ function useColorScale(min: number, max: number) {
     }
   }, [scale]);
 
-  return {
-    getColor
-  };
+  return { getColor };
 }
 
 export default useColorScale;

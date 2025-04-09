@@ -125,13 +125,7 @@ function App() {
       bbox.maxY
     ];
 
-    // Calculate min/max using d3.extent
-    const extent = d3.extent(values);
-    const [min, max] = extent[0] !== undefined && extent[1] !== undefined 
-      ? [extent[0], extent[1]]
-      : [0, 1];
-
-    return { table: dataTable, bbox: formattedBbox, min, max };
+    return { table: dataTable, bbox: formattedBbox };
   }, [data])
 
   function handleCity(e: FormEvent<HTMLDivElement>) {
@@ -156,8 +150,6 @@ function App() {
         <Map
           data={table?.table}
           bbox={table?.bbox}
-          min={table?.min ?? 0}
-          max={table?.max ?? 1}
         />
       )}
       <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" boxShadow="md" zIndex={1000}>
