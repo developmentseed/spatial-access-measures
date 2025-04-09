@@ -238,7 +238,7 @@ function App() {
       </Box>
 
       {loading &&
-        <AbsoluteCenter bg="grey" p="2" color="white" axis="both">
+        <AbsoluteCenter bg="grey" p="2" color="white" axis="both" zIndex={1000}>
           <Box>
             Loading Data...
           </Box>
