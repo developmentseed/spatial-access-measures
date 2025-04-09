@@ -11,12 +11,24 @@ importers:
       '@chakra-ui/react':
         specifier: ^3.2.1
         version: 3.15.0(@emotion/react@11.14.0(@types/react@18.3.20)(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@deck.gl/core':
+        specifier: ^9.1.8
+        version: 9.1.8
+      '@deck.gl/mapbox':
+        specifier: ^9.1.8
+        version: 9.1.8(@deck.gl/core@9.1.8)(@luma.gl/core@9.1.7)
       '@duckdb/duckdb-wasm':
         specifier: ^1.29.0
         version: 1.29.0
       '@emotion/react':
         specifier: ^11.13.5
         version: 11.14.0(@types/react@18.3.20)(react@19.1.0)
+      '@geoarrow/deck.gl-layers':
+        specifier: ^0.3.0
+        version: 0.3.0(tkxdyjoxe27jwqiyyr2dfv5phq)
+      '@geoarrow/geoarrow-js':
+        specifier: github:smohiudd/geoarrow-js#feature/wkb
+        version: https://codeload.github.com/smohiudd/geoarrow-js/tar.gz/58cd5ad74d60692ce4df18ca15536ada3062258a(@loaders.gl/schema@4.3.3(@loaders.gl/core@4.3.3))(@loaders.gl/wkt@4.3.3(@loaders.gl/core@4.3.3))(apache-arrow@17.0.0)
       '@turf/bbox':
         specifier: ^7.1.0
         version: 7.2.0
@@ -567,6 +579,29 @@ packages:
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
 
+  '@geoarrow/deck.gl-layers@0.3.0':
+    resolution: {integrity: sha512-0kk6A5lirhO5e6xk7tz+z+T+sE9FTonQQeucRLoR0TT7K9w3727S4UGy0CAFkElfOLWcwFfXpDX7j40tXGXf1A==}
+    peerDependencies:
+      '@deck.gl/aggregation-layers': ^9.0.12
+      '@deck.gl/core': ^9.0.12
+      '@deck.gl/geo-layers': ^9.0.12
+      '@deck.gl/layers': ^9.0.12
+      '@math.gl/polygon': ^3.6.2
+      apache-arrow: '>=15'
+
+  '@geoarrow/geoarrow-js@0.3.1':
+    resolution: {integrity: sha512-/SJ6tOwecH8Udz1Wx22DFroqxYmPz5vt+d5FlDE9w2gyHSF0tEg4QlCyds7uddcYdFAwkB6biHMeVBYQc8hm9A==}
+    peerDependencies:
+      apache-arrow: '>=15'
+
+  '@geoarrow/geoarrow-js@https://codeload.github.com/smohiudd/geoarrow-js/tar.gz/58cd5ad74d60692ce4df18ca15536ada3062258a':
+    resolution: {tarball: https://codeload.github.com/smohiudd/geoarrow-js/tar.gz/58cd5ad74d60692ce4df18ca15536ada3062258a}
+    version: 0.3.1
+    peerDependencies:
+      '@loaders.gl/schema': '*'
+      '@loaders.gl/wkt': '*'
+      apache-arrow: '>=15'
+
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
     engines: {node: '>=18.18.0'}
@@ -700,6 +735,11 @@ packages:
 
   '@loaders.gl/tiles@4.3.3':
     resolution: {integrity: sha512-cmC/spc+DM5aCSHoHrEuTPhDLuZRtkrWnlHkhC2Tur9uiUr41U3vXnC5slJkOeIWkaN4Q7KRFGCQ6SCendYfMg==}
+    peerDependencies:
+      '@loaders.gl/core': ^4.3.0
+
+  '@loaders.gl/wkt@4.3.3':
+    resolution: {integrity: sha512-rG4kWIbpb+KZNc2zRqs2wEhxjpAqoyUWj/lq7H6sw2fyIg8ifppCM6LrNdx3QEML7nNAmTI7AmRhTxzSG6uibg==}
     peerDependencies:
       '@loaders.gl/core': ^4.3.0
 
@@ -2077,6 +2117,10 @@ packages:
       jiti:
         optional: true
 
+  esm@3.2.25:
+    resolution: {integrity: sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==}
+    engines: {node: '>=6'}
+
   espree@10.3.0:
     resolution: {integrity: sha512-0QYC8b24HWY8zjRnDTL6RiHfDbAWn63qb4LMj1Z4b076A4une81+z03Kg7l7mn/48PUTqoLptSXez8oknU8Clg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -2450,6 +2494,10 @@ packages:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
 
+  is-observable@2.1.0:
+    resolution: {integrity: sha512-DailKdLb0WU+xX8K5w7VsJhapwHLZ9jjmazqCJq4X12CTgqq73TKnbRcnSLuXYPOoLQgV5IrD7ePiX/h1vnkBw==}
+    engines: {node: '>=8'}
+
   is-plain-object@2.0.4:
     resolution: {integrity: sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==}
     engines: {node: '>=0.10.0'}
@@ -2661,6 +2709,9 @@ packages:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
 
+  mgrs@1.0.0:
+    resolution: {integrity: sha512-awNbTOqCxK1DBGjalK3xqWIstBZgN6fxsMSiXLs9/spqWkF2pAhb2rrYCFSsr1/tT7PhcDGjZndG8SWYn0byYA==}
+
   micromatch@4.0.8:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
     engines: {node: '>=8.6'}
@@ -2742,6 +2793,9 @@ packages:
   object.values@1.2.1:
     resolution: {integrity: sha512-gXah6aZrcUxjWg2zR2MwouP2eHlCBzdV4pygudehaKXSGW4v2AsRQUK+lwwXhii6KFZcunEnmSUoYp5CXibxtA==}
     engines: {node: '>= 0.4'}
+
+  observable-fns@0.6.1:
+    resolution: {integrity: sha512-9gRK4+sRWzeN6AOewNBTLXir7Zl/i3GB6Yl26gK4flxz8BXVpD3kt8amREmWNb0mxYOGDotvE5a4N+PtGGKdkg==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -2844,6 +2898,9 @@ packages:
 
   process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
+
+  proj4@2.15.0:
+    resolution: {integrity: sha512-LqCNEcPdI03BrCHxPLj29vsd5afsm+0sV1H/O3nTDKrv8/LA01ea1z4QADDMjUqxSXWnrmmQDjqFm1J/uZ5RLw==}
 
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
@@ -3140,9 +3197,15 @@ packages:
     resolution: {integrity: sha512-dStVgoaQ11mA5htJ+RzZ51ZxIZqNOgWKAIvtjLrW1AliQQLCmrDqNzQZ8Jh91YealQ95DXt4MEduLzJmbs6lig==}
     hasBin: true
 
+  threads@1.7.0:
+    resolution: {integrity: sha512-Mx5NBSHX3sQYR6iI9VYbgHKBLisyB+xROCBGjjWm1O9wb9vfLxdaGtmT/KCjUqMsSNW6nERzCW3T6H43LqjDZQ==}
+
   timezone-groups@0.10.4:
     resolution: {integrity: sha512-AnkJYrbb7uPkDCEqGeVJiawZNiwVlSkkeX4jZg1gTEguClhyX+/Ezn07KB6DT29tG3UN418ldmS/W6KqGOTDjg==}
     engines: {node: '>=18.12.0'}
+
+  tiny-worker@2.3.0:
+    resolution: {integrity: sha512-pJ70wq5EAqTAEl9IkGzA+fN0836rycEuz2Cn6yeZ6FRzlVS5IDOkFHpIoEsksPRQV34GDqXm65+OlnZqUSyK2g==}
 
   tinyqueue@2.0.3:
     resolution: {integrity: sha512-ppJZNDuKGgxzkHihX8v9v9G5f+18gzaTfrukGrq6ueg0lmH4nqVnA2IPG0AEH3jKEk2GRJCUhDoqpoiw3PHLBA==}
@@ -3322,6 +3385,9 @@ packages:
     resolution: {integrity: sha512-GlaYyEb07DPxYCKhKzplCWBJtvxZcZMrL+4UkrTSJHHPyZU4mYYTv3qaOe77H7EODLSSopAUFAc6W8U4yqvscg==}
     engines: {node: ^16.13.0 || >=18.0.0}
     hasBin: true
+
+  wkt-parser@1.4.0:
+    resolution: {integrity: sha512-qpwO7Ihds/YYDTi1aADFTI1Sm9YC/tTe3SHD24EeIlZxy7Ik6a1b4HOz7jAi0xdUAw487duqpo8OGu+Tf4nwlQ==}
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -3986,6 +4052,39 @@ snapshots:
 
   '@floating-ui/utils@0.2.9': {}
 
+  '@geoarrow/deck.gl-layers@0.3.0(tkxdyjoxe27jwqiyyr2dfv5phq)':
+    dependencies:
+      '@deck.gl/aggregation-layers': 9.1.8(@deck.gl/core@9.1.8)(@deck.gl/layers@9.1.8(@deck.gl/core@9.1.8)(@loaders.gl/core@4.3.3)(@luma.gl/core@9.1.7)(@luma.gl/engine@9.1.7(@luma.gl/core@9.1.7)(@luma.gl/shadertools@9.1.7(@luma.gl/core@9.1.7))))(@luma.gl/core@9.1.7)(@luma.gl/engine@9.1.7(@luma.gl/core@9.1.7)(@luma.gl/shadertools@9.1.7(@luma.gl/core@9.1.7)))
+      '@deck.gl/core': 9.1.8
+      '@deck.gl/geo-layers': 9.1.8(@deck.gl/core@9.1.8)(@deck.gl/extensions@9.1.8(@deck.gl/core@9.1.8)(@luma.gl/core@9.1.7)(@luma.gl/engine@9.1.7(@luma.gl/core@9.1.7)(@luma.gl/shadertools@9.1.7(@luma.gl/core@9.1.7))))(@deck.gl/layers@9.1.8(@deck.gl/core@9.1.8)(@loaders.gl/core@4.3.3)(@luma.gl/core@9.1.7)(@luma.gl/engine@9.1.7(@luma.gl/core@9.1.7)(@luma.gl/shadertools@9.1.7(@luma.gl/core@9.1.7))))(@deck.gl/mesh-layers@9.1.8(@deck.gl/core@9.1.8)(@loaders.gl/core@4.3.3)(@luma.gl/core@9.1.7)(@luma.gl/engine@9.1.7(@luma.gl/core@9.1.7)(@luma.gl/shadertools@9.1.7(@luma.gl/core@9.1.7))))(@loaders.gl/core@4.3.3)(@luma.gl/core@9.1.7)(@luma.gl/engine@9.1.7(@luma.gl/core@9.1.7)(@luma.gl/shadertools@9.1.7(@luma.gl/core@9.1.7)))
+      '@deck.gl/layers': 9.1.8(@deck.gl/core@9.1.8)(@loaders.gl/core@4.3.3)(@luma.gl/core@9.1.7)(@luma.gl/engine@9.1.7(@luma.gl/core@9.1.7)(@luma.gl/shadertools@9.1.7(@luma.gl/core@9.1.7)))
+      '@geoarrow/geoarrow-js': 0.3.1(apache-arrow@17.0.0)
+      '@math.gl/polygon': 4.1.0
+      apache-arrow: 17.0.0
+      threads: 1.7.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@geoarrow/geoarrow-js@0.3.1(apache-arrow@17.0.0)':
+    dependencies:
+      '@math.gl/polygon': 4.1.0
+      apache-arrow: 17.0.0
+      proj4: 2.15.0
+      threads: 1.7.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@geoarrow/geoarrow-js@https://codeload.github.com/smohiudd/geoarrow-js/tar.gz/58cd5ad74d60692ce4df18ca15536ada3062258a(@loaders.gl/schema@4.3.3(@loaders.gl/core@4.3.3))(@loaders.gl/wkt@4.3.3(@loaders.gl/core@4.3.3))(apache-arrow@17.0.0)':
+    dependencies:
+      '@loaders.gl/schema': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/wkt': 4.3.3(@loaders.gl/core@4.3.3)
+      '@math.gl/polygon': 4.1.0
+      apache-arrow: 17.0.0
+      proj4: 2.15.0
+      threads: 1.7.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.6':
@@ -4196,6 +4295,13 @@ snapshots:
       '@math.gl/geospatial': 4.1.0
       '@math.gl/web-mercator': 4.1.0
       '@probe.gl/stats': 4.1.0
+
+  '@loaders.gl/wkt@4.3.3(@loaders.gl/core@4.3.3)':
+    dependencies:
+      '@loaders.gl/core': 4.3.3
+      '@loaders.gl/gis': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/loader-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/schema': 4.3.3(@loaders.gl/core@4.3.3)
 
   '@loaders.gl/wms@4.3.3(@loaders.gl/core@4.3.3)':
     dependencies:
@@ -6219,6 +6325,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  esm@3.2.25:
+    optional: true
+
   espree@10.3.0:
     dependencies:
       acorn: 8.14.1
@@ -6589,6 +6698,8 @@ snapshots:
 
   is-number@7.0.0: {}
 
+  is-observable@2.1.0: {}
+
   is-plain-object@2.0.4:
     dependencies:
       isobject: 3.0.1
@@ -6812,6 +6923,8 @@ snapshots:
 
   merge2@1.4.1: {}
 
+  mgrs@1.0.0: {}
+
   micromatch@4.0.8:
     dependencies:
       braces: 3.0.3
@@ -6893,6 +7006,8 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
+
+  observable-fns@0.6.1: {}
 
   optionator@0.9.4:
     dependencies:
@@ -6991,6 +7106,11 @@ snapshots:
   prelude-ls@1.2.1: {}
 
   process-nextick-args@2.0.1: {}
+
+  proj4@2.15.0:
+    dependencies:
+      mgrs: 1.0.0
+      wkt-parser: 1.4.0
 
   prop-types@15.8.1:
     dependencies:
@@ -7343,7 +7463,23 @@ snapshots:
       argparse: 1.0.10
       image-size: 0.7.5
 
+  threads@1.7.0:
+    dependencies:
+      callsites: 3.1.0
+      debug: 4.4.0
+      is-observable: 2.1.0
+      observable-fns: 0.6.1
+    optionalDependencies:
+      tiny-worker: 2.3.0
+    transitivePeerDependencies:
+      - supports-color
+
   timezone-groups@0.10.4: {}
+
+  tiny-worker@2.3.0:
+    dependencies:
+      esm: 3.2.25
+    optional: true
 
   tinyqueue@2.0.3: {}
 
@@ -7523,6 +7659,8 @@ snapshots:
   which@4.0.0:
     dependencies:
       isexe: 3.1.1
+
+  wkt-parser@1.4.0: {}
 
   word-wrap@1.2.5: {}
 

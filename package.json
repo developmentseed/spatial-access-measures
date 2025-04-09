@@ -8,8 +8,12 @@
   "homepage": "http://smohiudd.github.io/spatial-access-measures",
   "dependencies": {
     "@chakra-ui/react": "^3.2.1",
+    "@deck.gl/core": "^9.1.8",
+    "@deck.gl/mapbox": "^9.1.8",
     "@duckdb/duckdb-wasm": "^1.29.0",
     "@emotion/react": "^11.13.5",
+    "@geoarrow/deck.gl-layers": "^0.3.0",
+    "@geoarrow/geoarrow-js": "github:smohiudd/geoarrow-js#feature/wkb",
     "@turf/bbox": "^7.1.0",
     "apache-arrow": "17.0.0",
     "d3": "^7.9.0",

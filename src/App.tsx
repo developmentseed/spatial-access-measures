@@ -1,10 +1,13 @@
-import {FormEvent, useEffect, useState } from "react";
+import {FormEvent, useEffect, useMemo, useState } from "react";
+import { Binary, makeData, makeVector, Table } from "apache-arrow";
+import { io } from "@geoarrow/geoarrow-js";
+import { useDuckDbQuery} from "duckdb-wasm-kit";
+import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react";
+
 import Map from "./components/map";
 
 import {setupDB} from "./components/db";
-import { useDuckDbQuery} from "duckdb-wasm-kit";
 import { Provider } from "./components/ui/provider";
-import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react";
 import {
   SelectContent,
   SelectItem,
@@ -76,26 +79,72 @@ function App() {
   },[]);
 
 
-  const { arrow, loading } = useDuckDbQuery(`
-    SELECT CAST({
-      type: 'FeatureCollection',
-      features: json_group_array(geometry_json)
-    } AS JSON) as feature_collection
-    FROM (SELECT CAST({
-        type:'Feature',
-        geometry:ST_AsGeoJSON(ST_GeomFromWKB(st_aswkb(geometry))),
-        properties: {
-          'acs_idx_emp':acs_idx_emp,
-          'acs_idx_hf':acs_idx_hf,
-          'acs_idx_srf':acs_idx_srf,
-          'acs_idx_psef':acs_idx_psef,
-          'acs_idx_ef':acs_idx_ef,
-          'acs_idx_caf':acs_idx_caf
-        }
-      } AS JSON) as geometry_json,
-    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}')  ;
-    `);
+  const { arrow: data, loading } = useDuckDbQuery(`
+    SELECT st_aswkb(geometry) as geometry, ${access}
+    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}';
+  `);
 
+  const { arrow: extent } = useDuckDbQuery(`
+    SELECT st_extent(ST_Extent_Agg(COLUMNS(geometry)))::BOX_2D as bbox
+    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}';
+  `);
+
+  const { arrow: minmax } = useDuckDbQuery(`
+    SELECT min(${access}) as min, max(${access}) as max
+    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}';
+  `);
+
+  const table = useMemo(() => {
+    if (!data) return;
+
+    const geometry_wkb: Uint8Array[] = data.getChildAt(0)?.toArray();
+    const ids = data.getChildAt(1)?.toArray();
+    const flattenedWKB = new Uint8Array(geometry_wkb.flatMap((arr) => [...arr]));
+    const valueOffsets = new Int32Array(geometry_wkb.length + 1);
+
+    for (let i = 0, len = geometry_wkb.length; i < len; i++) {
+      const current = valueOffsets[i];
+      valueOffsets[i + 1] = current + geometry_wkb[i].length;
+    }
+
+    const coordData = makeData({
+      type: new Binary(),
+      data: flattenedWKB,
+      valueOffsets,
+    });
+    const polygonData = io.parseWkb(coordData, io.WKBType.Polygon, 2);
+
+    const dataTable = new Table({
+      geometry: makeVector(polygonData),
+      sam: makeVector(ids)
+    });
+
+    dataTable.schema.fields[0].metadata.set(
+      "ARROW:extension:name",
+      "geoarrow.polygon"
+    );
+    return dataTable;
+  }, [data])
+
+  const [min, max] = useMemo(() => {
+    if (minmax) {
+      const recordBatch = minmax.batches[0];
+      const row = recordBatch.get(0);
+      return [
+        row ? row["min"] : 0,
+        row ? row["max"] : 1
+      ];
+    }
+
+    return [0, 1];
+  }, [minmax]);
+
+  const bbox: [number, number, number, number] | undefined = useMemo(() => {
+    if (!extent) return;
+    const recordBatch = extent.data;
+    const [minX, minY, maxX, maxY] = recordBatch[0].children[0].children.map(({ values }) => values[0]);
+    return [minX, minY, maxX, maxY];
+  }, [extent]);
 
   function handleCity(e: FormEvent<HTMLDivElement>) {
     setCity((e.target as HTMLSelectElement).value);
@@ -115,8 +164,15 @@ function App() {
 
   return (
     <Provider>
-      {ready && <Map data={arrow} access_measure={access} />}
-      <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" shadow="3px 3px 4px 6px rgba(0, 0, 0, .05)">
+      {ready && (
+        <Map
+          data={table}
+          bbox={bbox}
+          min={min}
+          max={max}
+        />
+      )}
+      <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" shadow="3px 3px 4px 6px rgba(0, 0, 0, .05)" zIndex={1000}>
         <Text textStyle="4xl">Spatial Access Measures </Text>
 
         <Text py="4">Statistics Canada data that quantifies the ease of reaching destinations from an origin dissemination block (DB).</Text>
