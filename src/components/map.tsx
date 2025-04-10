@@ -12,8 +12,7 @@ import "../styles/map.css";
 interface Props {
   data?: Table;
   bbox?: [number, number, number, number];
-  min: number;
-  max: number;
+  access: string;
 }
 
 function DeckGLOverlay(props: DeckProps) {
@@ -22,22 +21,22 @@ function DeckGLOverlay(props: DeckProps) {
   return null;
 }
 
-export default function Map({ data, bbox, min, max }: Props) {
+export default function Map({ data, bbox, access }: Props) {
   const mapRef = useRef<MapRef>(null);
 
-  const { getColor } = useColorScale(min, max);
+  const { getColor} = useColorScale(data, access);
 
   const layers = useMemo(() => {
     return [
       data && new GeoArrowPolygonLayer({
-        id: "geoarrow-polygons",
+        id: `geoarrow-polygons-${access}`,
         stroked: false,
         filled: true,
         data,
         getFillColor: ({ index, data, target }) => {
           const recordBatch = data.data;
           const row = recordBatch.get(index);
-          const value = row ? row["sam"]: 0;
+          const value = row ? row[access]: 0;
           const [r, g, b] = getColor(value);
           target[0] = r;
           target[1] = g;
@@ -48,7 +47,7 @@ export default function Map({ data, bbox, min, max }: Props) {
         lineWidthMinPixels: 0,
       }),
     ];
-  }, [data, getColor]);
+  }, [data, getColor, access]);
 
   useEffect(() => {
     if (!mapRef.current || !bbox) return;
