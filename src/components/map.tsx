@@ -29,7 +29,7 @@ export default function Map({ data, bbox, access }: Props) {
   const layers = useMemo(() => {
     return [
       data && new GeoArrowPolygonLayer({
-        id: `geoarrow-polygons-${access}`,
+        id: `geoarrow-polygons`,
         stroked: false,
         filled: true,
         data,
@@ -45,6 +45,9 @@ export default function Map({ data, bbox, access }: Props) {
           return target as Color;
         },
         lineWidthMinPixels: 0,
+        updateTriggers: {
+          getFillColor: access
+        }
       }),
     ];
   }, [data, getColor, access]);
