@@ -13,6 +13,7 @@ interface Props {
   data?: Table;
   bbox?: [number, number, number, number];
   access: string;
+  access_class: string;
 }
 
 function DeckGLOverlay(props: DeckProps) {
@@ -21,12 +22,13 @@ function DeckGLOverlay(props: DeckProps) {
   return null;
 }
 
-export default function Map({ data, bbox, access }: Props) {
+export default function Map({ data, bbox, access, access_class }: Props) {
   const mapRef = useRef<MapRef>(null);
 
-  const { getColor} = useColorScale(data, access);
+  const { getColor} = useColorScale(data, access, access_class);
 
   const layers = useMemo(() => {
+    const columnName = [access, access_class].join("_");
     return [
       data && new GeoArrowPolygonLayer({
         id: `geoarrow-polygons`,
@@ -36,7 +38,7 @@ export default function Map({ data, bbox, access }: Props) {
         getFillColor: ({ index, data, target }) => {
           const recordBatch = data.data;
           const row = recordBatch.get(index);
-          const value = row ? row[access]: 0;
+          const value = row ? row[columnName]: 0;
           const [r, g, b] = getColor(value);
           target[0] = r;
           target[1] = g;
@@ -46,11 +48,11 @@ export default function Map({ data, bbox, access }: Props) {
         },
         lineWidthMinPixels: 0,
         updateTriggers: {
-          getFillColor: access
+          getFillColor: columnName
         }
       }),
     ];
-  }, [data, getColor, access]);
+  }, [data, access, access_class]);
 
   useEffect(() => {
     if (!mapRef.current || !bbox) return;
