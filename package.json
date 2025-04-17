@@ -8,8 +8,12 @@
   "homepage": "http://smohiudd.github.io/spatial-access-measures",
   "dependencies": {
     "@chakra-ui/react": "^3.2.1",
+    "@deck.gl/core": "^9.1.8",
+    "@deck.gl/mapbox": "^9.1.8",
     "@duckdb/duckdb-wasm": "^1.29.0",
     "@emotion/react": "^11.13.5",
+    "@geoarrow/deck.gl-layers": "^0.3.0",
+    "@geoarrow/geoarrow-js": "github:smohiudd/geoarrow-js#feature/wkb",
     "@turf/bbox": "^7.1.0",
     "apache-arrow": "^19.0.0",
     "d3": "^7.9.0",
@@ -66,5 +70,5 @@
       "last 1 safari version"
     ]
   },
-  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
+  "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531"
 }

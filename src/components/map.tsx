@@ -1,42 +1,63 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Layer, Map as MaplibreMap, MapRef, Source } from 'react-map-gl/maplibre';
+import { Map as MaplibreMap, MapRef, useControl } from "react-map-gl/maplibre";
+import { Color, DeckProps } from "@deck.gl/core";
+import { MapboxOverlay } from "@deck.gl/mapbox";
+import { GeoArrowPolygonLayer } from "@geoarrow/deck.gl-layers";
+import { Table } from "apache-arrow";
+import useColorScale from "../hooks/useColorScale";
+
 import "maplibre-gl/dist/maplibre-gl.css";
 import "../styles/map.css";
-import { Table } from "apache-arrow";
-import { bbox } from "@turf/bbox";
-import { getColorMap } from "../color_map";
 
 interface Props {
   data?: Table;
-  access_measure: string
+  bbox?: [number, number, number, number];
+  access: string;
+  access_class: string;
 }
 
-export default function Map({ data, access_measure }: Props) {
+function DeckGLOverlay(props: DeckProps) {
+  const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
+  overlay.setProps(props);
+  return null;
+}
+
+export default function Map({ data, bbox, access, access_class }: Props) {
   const mapRef = useRef<MapRef>(null);
 
-  const dataGeojson = useMemo(() => {
-    if (!data) {
-      return {
-        type: "FeatureCollection",
-        features: []
-      }
-    }
-    return JSON.parse(data.toArray().map(Object.fromEntries)[0].feature_collection);
-  }, [data]);
+  const { getColor} = useColorScale(data, access, access_class);
 
-  const colorMap = useMemo(() => {
-    if (!data) return;
-    return getColorMap(JSON.parse(data.toArray().map(Object.fromEntries)[0].feature_collection), access_measure);
-  }, [data, access_measure]);
+  const layers = useMemo(() => {
+    const columnName = [access, access_class].join("_");
+    return [
+      data && new GeoArrowPolygonLayer({
+        id: `geoarrow-polygons`,
+        stroked: false,
+        filled: true,
+        data,
+        getFillColor: ({ index, data, target }) => {
+          const recordBatch = data.data;
+          const row = recordBatch.get(index);
+          const value = row ? row[columnName]: 0;
+          const [r, g, b] = getColor(value);
+          target[0] = r;
+          target[1] = g;
+          target[2] = b;
+          target[3] = 204;
+          return target as Color;
+        },
+        lineWidthMinPixels: 0,
+        updateTriggers: {
+          getFillColor: columnName
+        }
+      }),
+    ];
+  }, [data, access, access_class]);
 
   useEffect(() => {
-    if (!mapRef.current || !data) return;
-
-    const boundaries = JSON.parse(data.toArray().map(Object.fromEntries)[0].feature_collection);
-    const box = bbox(boundaries);
-    const [minX, minY, maxX, maxY] = box;
-    mapRef.current.fitBounds([minX, minY, maxX, maxY], { padding: 30 });
-  }, [data])
+    if (!mapRef.current || !bbox) return;
+    mapRef.current.fitBounds(bbox, { padding: 30 });
+  }, [bbox]);
 
   return (
     <div>
@@ -56,24 +77,7 @@ export default function Map({ data, access_measure }: Props) {
         }}
         mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
       >
-        {data && colorMap && (
-          <Source id="data-source" type="geojson" data={dataGeojson} promoteId="id">
-            <Layer
-              id="data-layer"
-              type="fill"
-              paint={{
-                "fill-opacity": 0.8,
-                "fill-color": [
-                  "step",
-                  ["get", access_measure],
-                  ...colorMap,
-                  colorMap[colorMap.length - 2]
-                ]
-              }}
-              minzoom={9.5}
-            />
-          </Source>
-        )}
+        <DeckGLOverlay layers={layers} />
       </MaplibreMap>
     </div>
   );
