@@ -58,7 +58,7 @@ const access_types =  createListCollection({
   items: [
     {label:"Public Transit (Peak)", value:"acs_public_transit_peak"},
     {label:"Public Transit (Off Peak)", value:"acs_public_transit_offpeak"},
-    {label:"Cycling", value:"acs_cycling"},
+    {label:"Cycling", value:"acs_cycling"}, //acs_idx_hf_acs_cycling
     {label:"Walking", value:"acs_walking"},
   ],
 });
@@ -80,8 +80,8 @@ function App() {
 
 
   const { arrow: data, loading } = useDuckDbQuery(`
-    SELECT st_aswkb(geometry) as geometry, acs_idx_emp, acs_idx_hf, acs_idx_ef, acs_idx_psef, acs_idx_srf, acs_idx_caf
-    FROM access_measures.parquet WHERE type='${access_class}' AND CSDNAME='${city}';
+    SELECT st_aswkb(geometry) as geometry, *
+    FROM access_measures.parquet WHERE CSDNAME='${city}';
   `);
 
   const table = useMemo(() => {
@@ -105,12 +105,41 @@ function App() {
 
     const dataTable = new Table({
       geometry: makeVector(polygonData),
-      acs_idx_emp: makeVector(data.getChild("acs_idx_emp")?.toArray()),
-      acs_idx_hf: makeVector(data.getChild("acs_idx_hf")?.toArray()),
-      acs_idx_ef: makeVector(data.getChild("acs_idx_ef")?.toArray()),
-      acs_idx_psef: makeVector(data.getChild("acs_idx_psef")?.toArray()),
-      acs_idx_srf: makeVector(data.getChild("acs_idx_srf")?.toArray()),
-      acs_idx_caf: makeVector(data.getChild("acs_idx_caf")?.toArray())
+      // Healthcare Facilities combinations
+      acs_idx_hf_acs_cycling: makeVector(data.getChild("acs_idx_hf_acs_cycling")?.toArray()),
+      acs_idx_hf_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_hf_acs_public_transit_offpeak")?.toArray()),
+      acs_idx_hf_acs_public_transit_peak: makeVector(data.getChild("acs_idx_hf_acs_public_transit_peak")?.toArray()),
+      acs_idx_hf_acs_walking: makeVector(data.getChild("acs_idx_hf_acs_walking")?.toArray()),
+      
+      // Employment combinations
+      acs_idx_emp_acs_cycling: makeVector(data.getChild("acs_idx_emp_acs_cycling")?.toArray()),
+      acs_idx_emp_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_emp_acs_public_transit_offpeak")?.toArray()),
+      acs_idx_emp_acs_public_transit_peak: makeVector(data.getChild("acs_idx_emp_acs_public_transit_peak")?.toArray()),
+      acs_idx_emp_acs_walking: makeVector(data.getChild("acs_idx_emp_acs_walking")?.toArray()),
+      
+      // Sport and Recreation Facilities combinations
+      acs_idx_srf_acs_cycling: makeVector(data.getChild("acs_idx_srf_acs_cycling")?.toArray()),
+      acs_idx_srf_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_srf_acs_public_transit_offpeak")?.toArray()),
+      acs_idx_srf_acs_public_transit_peak: makeVector(data.getChild("acs_idx_srf_acs_public_transit_peak")?.toArray()),
+      acs_idx_srf_acs_walking: makeVector(data.getChild("acs_idx_srf_acs_walking")?.toArray()),
+      
+      // Post-secondary Education combinations
+      acs_idx_psef_acs_cycling: makeVector(data.getChild("acs_idx_psef_acs_cycling")?.toArray()),
+      acs_idx_psef_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_psef_acs_public_transit_offpeak")?.toArray()),
+      acs_idx_psef_acs_public_transit_peak: makeVector(data.getChild("acs_idx_psef_acs_public_transit_peak")?.toArray()),
+      acs_idx_psef_acs_walking: makeVector(data.getChild("acs_idx_psef_acs_walking")?.toArray()),
+      
+      // Primary and Secondary Education combinations
+      acs_idx_ef_acs_cycling: makeVector(data.getChild("acs_idx_ef_acs_cycling")?.toArray()),
+      acs_idx_ef_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_ef_acs_public_transit_offpeak")?.toArray()),
+      acs_idx_ef_acs_public_transit_peak: makeVector(data.getChild("acs_idx_ef_acs_public_transit_peak")?.toArray()),
+      acs_idx_ef_acs_walking: makeVector(data.getChild("acs_idx_ef_acs_walking")?.toArray()),
+      
+      // Cultural and Arts Facilities combinations
+      acs_idx_caf_acs_cycling: makeVector(data.getChild("acs_idx_caf_acs_cycling")?.toArray()),
+      acs_idx_caf_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_caf_acs_public_transit_offpeak")?.toArray()),
+      acs_idx_caf_acs_public_transit_peak: makeVector(data.getChild("acs_idx_caf_acs_public_transit_peak")?.toArray()),
+      acs_idx_caf_acs_walking: makeVector(data.getChild("acs_idx_caf_acs_walking")?.toArray())
     });
 
     dataTable.schema.fields[0].metadata.set(
@@ -154,6 +183,7 @@ function App() {
           data={table?.table}
           bbox={table?.bbox}
           access={access}
+          access_class={access_class}
         />
       )}
       <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" boxShadow="md" zIndex={1000}>

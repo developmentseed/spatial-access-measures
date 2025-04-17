@@ -2,11 +2,11 @@ import * as d3 from "d3";
 import { useCallback, useMemo } from "react";
 import { Table } from "apache-arrow";
 
-function useColorScale(data: Table | undefined, access: string) {
+function useColorScale(data: Table | undefined, access: string, access_class: string) {
   const { min, max } = useMemo(() => {
     if (!data) return { min: 0, max: 1 };
-    
-    const values = data.getChild(access)?.toArray();
+    const columnName = [access, access_class].join("_");
+    const values = data.getChild(columnName)?.toArray();
     const extent = d3.extent(values as number[]);
     return {
       min: extent[0] ?? 0,
