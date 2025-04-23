@@ -43,16 +43,16 @@ const access_categories = createListCollection({
   ],
 });
 
-const percentiles = createListCollection({
-  items: [
-    { label: "10%", value: 0.1 },
-    { label: "25%", value: 0.25 },
-    { label: "40%", value: 0.4 },
-    { label: "50% (Median)", value: 0.5 },
-    { label: "70%", value: 0.7 },
-    { label: "90%", value: 0.9 }
-  ],
-});
+// const percentiles = createListCollection({
+//   items: [
+//     { label: "10%", value: 0.1 },
+//     { label: "25%", value: 0.25 },
+//     { label: "40%", value: 0.4 },
+//     { label: "50% (Median)", value: 0.5 },
+//     { label: "70%", value: 0.7 },
+//     { label: "90%", value: 0.9 }
+//   ],
+// });
 
 const access_types =  createListCollection({
   items: [
@@ -69,7 +69,6 @@ function App() {
   const [city, setCity] = useState<string>("Vancouver");
   const [access, setAccess] = useState<string>("acs_idx_emp");
   const [access_class, setAccessClass] = useState<string>("acs_public_transit_peak");
-  const [percentile, setPercentile] = useState<number>(0.99); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   useEffect(() => {
     console.log("setting up db");
@@ -104,7 +103,7 @@ function App() {
     const polygonData = io.parseWkb(coordData, io.WKBType.Polygon, 2);
 
     const dataTable = new Table({
-      geometry: makeVector(polygonData),
+      geometry: makeVector(polygonData as any),
       // Healthcare Facilities combinations
       acs_idx_hf_acs_cycling: makeVector(data.getChild("acs_idx_hf_acs_cycling")?.toArray()),
       acs_idx_hf_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_hf_acs_public_transit_offpeak")?.toArray()),
@@ -168,17 +167,13 @@ function App() {
     setAccess((e.target as HTMLSelectElement).value);
   }
 
-  function handlePercentile(e: FormEvent<HTMLDivElement>) {
-    setPercentile(parseFloat((e.target as HTMLSelectElement).value));
-  }
-
   function handleAccessType(e: FormEvent<HTMLDivElement>) {
     setAccessClass((e.target as HTMLSelectElement).value);
   }
 
   return (
     <Provider>
-      {ready && (
+      {(
         <Map
           data={table?.table}
           bbox={table?.bbox}
@@ -227,20 +222,6 @@ function App() {
             </SelectTrigger>
             <SelectContent p="3">
               {access_categories.items.map((item) => (
-                <SelectItem item={item} key={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectRoot>
-
-          <SelectRoot disabled key="percentile" size="sm" collection={percentiles} onChange={handlePercentile}>
-            <SelectLabel>Percentile</SelectLabel>
-            <SelectTrigger>
-              <SelectValueText placeholder="50%" />
-            </SelectTrigger>
-            <SelectContent p="3">
-              {percentiles.items.map((item) => (
                 <SelectItem item={item} key={item.value}>
                   {item.label}
                 </SelectItem>

@@ -24,3 +24,4 @@ yarn-error.log*
 
 data
 .ipynb_checkpoints
+dist
