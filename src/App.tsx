@@ -65,7 +65,6 @@ const access_types =  createListCollection({
 
 function App() {
 
-  const [ready, setReady] = useState(false);
   const [city, setCity] = useState<string>("Vancouver");
   const [access, setAccess] = useState<string>("acs_idx_emp");
   const [access_class, setAccessClass] = useState<string>("acs_public_transit_peak");
@@ -73,7 +72,6 @@ function App() {
   useEffect(() => {
     console.log("setting up db");
     setupDB()
-      .then(() => setReady(true))
       .catch((e) => console.error(e.message));
   },[]);
 
