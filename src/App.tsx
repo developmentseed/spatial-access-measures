@@ -1,6 +1,6 @@
 import {FormEvent, useEffect, useMemo, useState } from "react";
 import { Binary, makeData, makeVector, Table } from "apache-arrow";
-import { io, algorithm } from "@geoarrow/geoarrow-js";
+import { io } from "@geoarrow/geoarrow-js";
 import { useDuckDbQuery} from "duckdb-wasm-kit";
 import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react";
 
