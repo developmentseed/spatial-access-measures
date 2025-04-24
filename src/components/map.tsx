@@ -11,7 +11,7 @@ import "../styles/map.css";
 
 interface Props {
   data?: Table;
-  bbox?: [number, number, number, number];
+  coordinates?: { latitude: number; longitude: number } | null;
   access: string;
   access_class: string;
 }
@@ -22,7 +22,7 @@ function DeckGLOverlay(props: DeckProps) {
   return null;
 }
 
-export default function Map({ data, bbox, access, access_class }: Props) {
+export default function Map({ data, coordinates, access, access_class }: Props) {
   const mapRef = useRef<MapRef>(null);
 
   const { getColor} = useColorScale(data, access, access_class);
@@ -55,18 +55,22 @@ export default function Map({ data, bbox, access, access_class }: Props) {
   }, [data, access, access_class]);
 
   useEffect(() => {
-    if (!mapRef.current || !bbox) return;
-    mapRef.current.fitBounds(bbox, { padding: 30 });
-  }, [bbox]);
+    if (!mapRef.current || !coordinates) return;
+    mapRef.current.flyTo({
+      center: [coordinates.longitude, coordinates.latitude],
+      zoom: 11,
+      speed:0.7,
+    });
+  }, [coordinates]);
 
   return (
     <div>
       <MaplibreMap
         ref={mapRef}
         initialViewState={{
-          longitude: -123.1120,
-          latitude: 49.2488,
-          zoom: 11.5
+          longitude: -123.113889,
+          latitude: 49.261111,
+          zoom: 11
         }}
         style={{
           position: "absolute",

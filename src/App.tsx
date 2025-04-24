@@ -68,6 +68,7 @@ function App() {
   const [city, setCity] = useState<string>("Vancouver");
   const [access, setAccess] = useState<string>("acs_idx_emp");
   const [access_class, setAccessClass] = useState<string>("acs_public_transit_peak");
+  const [coordinates, setCoordinates] = useState<{latitude: number, longitude: number} | null>(null);
 
   useEffect(() => {
     console.log("setting up db");
@@ -75,6 +76,25 @@ function App() {
       .catch((e) => console.error(e.message));
   },[]);
 
+  useEffect(() => {
+    const fetchCityCoordinates = async () => {
+      try {
+        const response = await fetch(`https://geogratis.gc.ca/services/geoname/en/geonames.json?q=${city}&concise=CITY`);
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+          const cityData = data.items[0];
+          setCoordinates({
+            latitude: cityData.latitude,
+            longitude: cityData.longitude
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching city coordinates:', error);
+      }
+    };
+
+    fetchCityCoordinates();
+  }, [city]);
 
   const { arrow: data, loading } = useDuckDbQuery(`
     SELECT st_aswkb(geometry) as geometry, *
@@ -144,17 +164,7 @@ function App() {
       "geoarrow.polygon"
     );
 
-    const bbox = algorithm.totalBounds(dataTable.getChildAt(0)!,dataTable.schema.fields[0]);
-    
-    // Convert bbox to [minX, minY, maxX, maxY] format
-    const formattedBbox: [number, number, number, number] = [
-      bbox.minX,
-      bbox.minY,
-      bbox.maxX,
-      bbox.maxY
-    ];
-
-    return { table: dataTable, bbox: formattedBbox };
+    return { table: dataTable };
   }, [data])
 
   function handleCity(e: FormEvent<HTMLDivElement>) {
@@ -174,7 +184,7 @@ function App() {
       {(
         <Map
           data={table?.table}
-          bbox={table?.bbox}
+          coordinates={coordinates}
           access={access}
           access_class={access_class}
         />
