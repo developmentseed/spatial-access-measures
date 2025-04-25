@@ -5,6 +5,7 @@ import { useDuckDbQuery} from "duckdb-wasm-kit";
 import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react";
 
 import Map from "./components/map";
+import { cityList } from "./data/cities";
 
 import {setupDB} from "./components/db";
 import { Provider } from "./components/ui/provider";
@@ -17,21 +18,6 @@ import {
   SelectValueText,
 } from "./components/ui/select";
 
-
-const cities = createListCollection({
-  items: [
-    { label: "Calgary", value: "Calgary" },
-    { label: "Vancouver", value: "Vancouver" },
-    { label: "Edmonton", value: "Edmonton" },
-    { label: "Toronto", value: "Toronto" },
-    { label: "Burnaby", value: "Burnaby" },
-    { label: "London", value: "London" },
-    { label: "Saskatoon", value: "Saskatoon" },
-    { label: "Regina", value: "Regina" },
-    { label: "Winnipeg", value: "Winnipeg" },
-  ],
-});
-
 const access_categories = createListCollection({
   items: [
     {label:"Employment", value:"acs_idx_emp"},
@@ -43,28 +29,16 @@ const access_categories = createListCollection({
   ],
 });
 
-// const percentiles = createListCollection({
-//   items: [
-//     { label: "10%", value: 0.1 },
-//     { label: "25%", value: 0.25 },
-//     { label: "40%", value: 0.4 },
-//     { label: "50% (Median)", value: 0.5 },
-//     { label: "70%", value: 0.7 },
-//     { label: "90%", value: 0.9 }
-//   ],
-// });
-
 const access_types =  createListCollection({
   items: [
     {label:"Public Transit (Peak)", value:"acs_public_transit_peak"},
     {label:"Public Transit (Off Peak)", value:"acs_public_transit_offpeak"},
-    {label:"Cycling", value:"acs_cycling"}, //acs_idx_hf_acs_cycling
+    {label:"Cycling", value:"acs_cycling"},
     {label:"Walking", value:"acs_walking"},
   ],
 });
 
 function App() {
-
   const [city, setCity] = useState<string>("Vancouver");
   const [access, setAccess] = useState<string>("acs_idx_emp");
   const [access_class, setAccessClass] = useState<string>("acs_public_transit_peak");
@@ -98,7 +72,7 @@ function App() {
 
   const { arrow: data, loading } = useDuckDbQuery(`
     SELECT st_aswkb(geometry) as geometry, *
-    FROM access_measures.parquet WHERE CSDNAME='${city}';
+    FROM access_measures.parquet WHERE CSDNAME='${city.replace("'", "''")}';
   `);
 
   const table = useMemo(() => {
@@ -179,6 +153,10 @@ function App() {
     setAccessClass((e.target as HTMLSelectElement).value);
   }
 
+  const citiesCollection = createListCollection({
+    items: cityList.map(name => ({ label: name, value: name }))
+  });
+
   return (
     <Provider>
       {(
@@ -209,13 +187,13 @@ function App() {
             </SelectContent>
           </SelectRoot>
 
-          <SelectRoot key="cities" size="sm" collection={cities} onChange={handleCity}>
+          <SelectRoot key="cities" size="sm" collection={citiesCollection} onChange={handleCity}>
             <SelectLabel>City</SelectLabel>
             <SelectTrigger>
               <SelectValueText placeholder={city} />
             </SelectTrigger>
             <SelectContent p="2">
-              {cities.items.map((item) => (
+              {citiesCollection.items.map((item) => (
                 <SelectItem item={item} key={item.value}>
                   {item.label}
                 </SelectItem>
