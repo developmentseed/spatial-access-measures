@@ -2,7 +2,8 @@ import {FormEvent, useEffect, useMemo, useState } from "react";
 import { Binary, makeData, makeVector, Table } from "apache-arrow";
 import { io } from "@geoarrow/geoarrow-js";
 import { useDuckDbQuery} from "duckdb-wasm-kit";
-import { AbsoluteCenter, Box, createListCollection, Text,  Stack } from "@chakra-ui/react";
+import { AbsoluteCenter, Box, createListCollection, Text,  Stack, Spinner } from "@chakra-ui/react";
+
 
 import Map from "./components/map";
 import { cityList } from "./data/cities";
@@ -96,37 +97,37 @@ function App() {
 
     const dataTable = new Table({
       geometry: makeVector(polygonData as any),
-      // Healthcare Facilities combinations
+      // Healthcare Facilities
       acs_idx_hf_acs_cycling: makeVector(data.getChild("acs_idx_hf_acs_cycling")?.toArray()),
       acs_idx_hf_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_hf_acs_public_transit_offpeak")?.toArray()),
       acs_idx_hf_acs_public_transit_peak: makeVector(data.getChild("acs_idx_hf_acs_public_transit_peak")?.toArray()),
       acs_idx_hf_acs_walking: makeVector(data.getChild("acs_idx_hf_acs_walking")?.toArray()),
       
-      // Employment combinations
+      // Employment
       acs_idx_emp_acs_cycling: makeVector(data.getChild("acs_idx_emp_acs_cycling")?.toArray()),
       acs_idx_emp_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_emp_acs_public_transit_offpeak")?.toArray()),
       acs_idx_emp_acs_public_transit_peak: makeVector(data.getChild("acs_idx_emp_acs_public_transit_peak")?.toArray()),
       acs_idx_emp_acs_walking: makeVector(data.getChild("acs_idx_emp_acs_walking")?.toArray()),
       
-      // Sport and Recreation Facilities combinations
+      // Sport and Recreation Facilities
       acs_idx_srf_acs_cycling: makeVector(data.getChild("acs_idx_srf_acs_cycling")?.toArray()),
       acs_idx_srf_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_srf_acs_public_transit_offpeak")?.toArray()),
       acs_idx_srf_acs_public_transit_peak: makeVector(data.getChild("acs_idx_srf_acs_public_transit_peak")?.toArray()),
       acs_idx_srf_acs_walking: makeVector(data.getChild("acs_idx_srf_acs_walking")?.toArray()),
       
-      // Post-secondary Education combinations
+      // Post-secondary Education
       acs_idx_psef_acs_cycling: makeVector(data.getChild("acs_idx_psef_acs_cycling")?.toArray()),
       acs_idx_psef_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_psef_acs_public_transit_offpeak")?.toArray()),
       acs_idx_psef_acs_public_transit_peak: makeVector(data.getChild("acs_idx_psef_acs_public_transit_peak")?.toArray()),
       acs_idx_psef_acs_walking: makeVector(data.getChild("acs_idx_psef_acs_walking")?.toArray()),
       
-      // Primary and Secondary Education combinations
+      // Primary and Secondary Education
       acs_idx_ef_acs_cycling: makeVector(data.getChild("acs_idx_ef_acs_cycling")?.toArray()),
       acs_idx_ef_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_ef_acs_public_transit_offpeak")?.toArray()),
       acs_idx_ef_acs_public_transit_peak: makeVector(data.getChild("acs_idx_ef_acs_public_transit_peak")?.toArray()),
       acs_idx_ef_acs_walking: makeVector(data.getChild("acs_idx_ef_acs_walking")?.toArray()),
       
-      // Cultural and Arts Facilities combinations
+      // Cultural and Arts Facilities
       acs_idx_caf_acs_cycling: makeVector(data.getChild("acs_idx_caf_acs_cycling")?.toArray()),
       acs_idx_caf_acs_public_transit_offpeak: makeVector(data.getChild("acs_idx_caf_acs_public_transit_offpeak")?.toArray()),
       acs_idx_caf_acs_public_transit_peak: makeVector(data.getChild("acs_idx_caf_acs_public_transit_peak")?.toArray()),
@@ -170,24 +171,16 @@ function App() {
       <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" boxShadow="md" zIndex={1000}>
         <Text textStyle="4xl">Spatial Access Measures </Text>
 
-        <Text py="4">Statistics Canada data that quantifies the ease of reaching destinations from an origin dissemination block (DB).</Text>
+        <Text textStyle="xs" py="4">
+          Spatial Accessibility measures how easily Canadians can reach essential places like jobs, schools, healthcare, 
+          and stores using public transit, cycling, or walking. High accessibility means many destinations are easy to reach, 
+          while low accessibility means it's harder or takes longer to get to the places people need.
+
+        </Text>
 
         <Stack gap="5">
 
-          <SelectRoot key="access_type" size="sm" collection={access_types} onChange={handleAccessType}>
-            <SelectTrigger>
-              <SelectValueText placeholder="Public Transit (Peak)" />
-            </SelectTrigger>
-            <SelectContent p="2">
-              {access_types.items.map((item) => (
-                <SelectItem item={item} key={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectRoot>
-
-          <SelectRoot key="cities" size="sm" collection={citiesCollection} onChange={handleCity}>
+        <SelectRoot key="cities" size="md" collection={citiesCollection} onChange={handleCity}>
             <SelectLabel>City</SelectLabel>
             <SelectTrigger>
               <SelectValueText placeholder={city} />
@@ -201,7 +194,21 @@ function App() {
             </SelectContent>
           </SelectRoot>
 
-          <SelectRoot key="access" size="sm" collection={access_categories} onChange={handleAccess}>
+          <SelectRoot key="access_type" size="md" collection={access_types} onChange={handleAccessType}>
+          <SelectLabel>Travel Mode</SelectLabel>
+            <SelectTrigger>
+              <SelectValueText placeholder="Public Transit (Peak)" />
+            </SelectTrigger>
+            <SelectContent p="2">
+              {access_types.items.map((item) => (
+                <SelectItem item={item} key={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectRoot>
+
+          <SelectRoot key="access" size="md" collection={access_categories} onChange={handleAccess}>
             <SelectLabel>Access Measure</SelectLabel>
             <SelectTrigger>
               <SelectValueText placeholder="Employment" />
@@ -219,11 +226,9 @@ function App() {
       </Box>
 
       {loading &&
-        <AbsoluteCenter bg="grey" p="2" color="white" axis="both" zIndex={1000}>
-          <Box>
-            Loading Data...
-          </Box>
-        </AbsoluteCenter>}
+         <AbsoluteCenter p="2" color="white" axis="both" zIndex={1000}>
+            <Spinner size="xl" color='black' borderWidth='4px' animationDuration='0.8s'/>
+          </AbsoluteCenter>}
     </Provider>
 
   );
