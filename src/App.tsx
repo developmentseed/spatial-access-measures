@@ -169,10 +169,10 @@ function App() {
         />
       )}
       <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" boxShadow="md" zIndex={1000}>
-        <Text textStyle="4xl">Spatial Access Measures </Text>
+        <Text textStyle="4xl" fontWeight="semibold">Spatial Access Measures </Text>
 
         <Text textStyle="xs" py="4">
-          Spatial Accessibility measures how easily Canadians can reach essential places like jobs, schools, healthcare, 
+          Spatial Accessibility measures how easy it is to reach essential places like jobs, schools, healthcare, 
           and stores using public transit, cycling, or walking. High accessibility means many destinations are easy to reach, 
           while low accessibility means it's harder or takes longer to get to the places people need.
 
