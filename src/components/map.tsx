@@ -4,6 +4,7 @@ import { Color, DeckProps } from "@deck.gl/core";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { GeoArrowPolygonLayer } from "@geoarrow/deck.gl-layers";
 import { Table } from "apache-arrow";
+import {PickingInfo} from '@deck.gl/core';
 import useColorScale from "../hooks/useColorScale";
 
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -20,6 +21,30 @@ function DeckGLOverlay(props: DeckProps) {
   const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
   overlay.setProps(props);
   return null;
+}
+
+type DataType = {
+  [key: string]: number;
+};
+
+function getTooltip({object}: PickingInfo<DataType>, access: string, access_class: string) {
+  if (!object) {
+    return null;
+  }
+  const columnName = [access, access_class].join("_");
+  return {
+    html: `<p>${object[columnName]}</p>`,
+    style: {
+      backgroundColor: '#fff',
+      fontSize: '1.5em',
+      position: 'absolute',
+      top: '-45px',
+      left: '-70px',
+      padding: '8px',
+      borderRadius: '4px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+    }
+  };
 }
 
 export default function Map({ data, coordinates, access, access_class }: Props) {
@@ -49,7 +74,10 @@ export default function Map({ data, coordinates, access, access_class }: Props) 
         lineWidthMinPixels: 0,
         updateTriggers: {
           getFillColor: columnName
-        }
+        },
+        pickable: true,
+        autoHighlight: true,
+        highlightColor: [252, 192, 38],
       }),
     ];
   }, [data, access, access_class]);
@@ -81,7 +109,7 @@ export default function Map({ data, coordinates, access, access_class }: Props) 
         }}
         mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
       >
-        <DeckGLOverlay layers={layers} />
+        <DeckGLOverlay layers={layers} getTooltip={(info) => getTooltip(info, access, access_class)} />
       </MaplibreMap>
     </div>
   );

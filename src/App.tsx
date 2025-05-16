@@ -2,42 +2,13 @@ import {FormEvent, useEffect, useMemo, useState } from "react";
 import { Binary, makeData, makeVector, Table } from "apache-arrow";
 import { io } from "@geoarrow/geoarrow-js";
 import { useDuckDbQuery} from "duckdb-wasm-kit";
-import { AbsoluteCenter, Box, createListCollection, Text,  Stack, Spinner } from "@chakra-ui/react";
-
+import { AbsoluteCenter, Spinner } from "@chakra-ui/react";
 
 import Map from "./components/map";
-import { cityList } from "./data/cities";
-
+import Sidebar from "./components/Sidebar";
+import Histogram from "./components/Histogram";
 import {setupDB} from "./components/db";
 import { Provider } from "./components/ui/provider";
-import {
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-  SelectRoot,
-  SelectTrigger,
-  SelectValueText,
-} from "./components/ui/select";
-
-const access_categories = createListCollection({
-  items: [
-    {label:"Employment", value:"acs_idx_emp"},
-    {label:"Healthcare Facilities", value:"acs_idx_hf"},
-    {label:"Primary and Secondary Education", value:"acs_idx_ef"},
-    {label:"Post-secondary Education", value:"acs_idx_psef"},
-    {label:"Sport and Recreation Facilities", value:"acs_idx_srf"},
-    {label:"Cultural and Arts Facilities", value:"acs_idx_caf"}
-  ],
-});
-
-const access_types =  createListCollection({
-  items: [
-    {label:"Public Transit (Peak)", value:"acs_public_transit_peak"},
-    {label:"Public Transit (Off Peak)", value:"acs_public_transit_offpeak"},
-    {label:"Cycling", value:"acs_cycling"},
-    {label:"Walking", value:"acs_walking"},
-  ],
-});
 
 function App() {
   const [city, setCity] = useState<string>("Vancouver");
@@ -154,83 +125,33 @@ function App() {
     setAccessClass((e.target as HTMLSelectElement).value);
   }
 
-  const citiesCollection = createListCollection({
-    items: cityList.map(name => ({ label: name, value: name }))
-  });
-
   return (
     <Provider>
-      {(
-        <Map
-          data={table?.table}
-          coordinates={coordinates}
-          access={access}
-          access_class={access_class}
-        />
-      )}
-      <Box bg="white" w="20rem" p="7" position="absolute" top="4" left="4" boxShadow="md" zIndex={1000}>
-        <Text textStyle="4xl" fontWeight="semibold">Spatial Access Measures </Text>
-
-        <Text textStyle="xs" py="4">
-          Spatial Accessibility measures how easy it is to reach essential places like jobs, schools, healthcare, 
-          and stores using public transit, cycling, or walking. High accessibility means many destinations are easy to reach, 
-          while low accessibility means it's harder or takes longer to get to the places people need.
-
-        </Text>
-
-        <Stack gap="5">
-
-        <SelectRoot key="cities" size="md" collection={citiesCollection} onChange={handleCity}>
-            <SelectLabel>City</SelectLabel>
-            <SelectTrigger>
-              <SelectValueText placeholder={city} />
-            </SelectTrigger>
-            <SelectContent p="2">
-              {citiesCollection.items.map((item) => (
-                <SelectItem item={item} key={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectRoot>
-
-          <SelectRoot key="access_type" size="md" collection={access_types} onChange={handleAccessType}>
-          <SelectLabel>Travel Mode</SelectLabel>
-            <SelectTrigger>
-              <SelectValueText placeholder="Public Transit (Peak)" />
-            </SelectTrigger>
-            <SelectContent p="2">
-              {access_types.items.map((item) => (
-                <SelectItem item={item} key={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectRoot>
-
-          <SelectRoot key="access" size="md" collection={access_categories} onChange={handleAccess}>
-            <SelectLabel>Access Measure</SelectLabel>
-            <SelectTrigger>
-              <SelectValueText placeholder="Employment" />
-            </SelectTrigger>
-            <SelectContent p="3">
-              {access_categories.items.map((item) => (
-                <SelectItem item={item} key={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectRoot>
-        </Stack>
-
-      </Box>
-
+      <Map
+        data={table?.table}
+        coordinates={coordinates}
+        access={access}
+        access_class={access_class}
+      />
+      <Sidebar
+        city={city}
+        access={access}
+        access_class={access_class}
+        table={table?.table}
+        onCityChange={handleCity}
+        onAccessChange={handleAccess}
+        onAccessTypeChange={handleAccessType}
+      />
+      <Histogram
+        data={table?.table}
+        access={access}
+        access_class={access_class}
+      />
       {loading &&
          <AbsoluteCenter p="2" color="white" axis="both" zIndex={1000}>
-            <Spinner size="xl" color='black' borderWidth='4px' animationDuration='0.8s'/>
+            <Spinner size="xl" color='orange.500' borderWidth='4px' animationDuration='0.8s'/>
           </AbsoluteCenter>}
     </Provider>
-
   );
 }
 

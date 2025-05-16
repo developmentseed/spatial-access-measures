@@ -33,7 +33,7 @@ function useColorScale(data: Table | undefined, access: string, access_class: st
     return [200, 200, 200]; // Fallback color
   }, [scale]);
 
-  return { getColor };
+  return { getColor, min, max, scale };
 }
 
 export default useColorScale;
