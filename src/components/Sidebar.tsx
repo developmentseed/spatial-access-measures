@@ -13,6 +13,7 @@ import {
   SelectValueText,
 } from "./ui/select";
 import { Table } from "apache-arrow";
+import devSeedLogo from "../img/dev_seed_logo.png";
 
 const access_categories = createListCollection({
   items: [
@@ -123,6 +124,11 @@ export default function Sidebar({
       <Text textStyle="xs" py="4" color="gray.700">
         See how this data was created by Statistics Canada in the <a href="https://publications.gc.ca/site/eng/9.939806/publication.html" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>methodology report</a>.
       </Text>
+      <Box display="flex" justifyContent="flex-start" alignItems="center">
+        <a href="https://developmentseed.org/" target="_blank" rel="noopener noreferrer">
+          <img src={devSeedLogo} alt="Spatial Access Measures Vancouver Logo" style={{ maxWidth: '150px', width: '100%' }} />
+        </a>
+      </Box>
     </Box>
   );
 } 
